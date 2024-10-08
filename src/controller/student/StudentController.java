@@ -1,7 +1,7 @@
 package controller.student;
 
 import exceptions.ValidationException;
-import model.student.repository.IStudentRepo;
+import model.student.repository.IStudentRepository;
 import model.student.entity.Student;
 import model.student.dto.StudentDTO;
 import utils.ParseUtils;
@@ -9,17 +9,16 @@ import utils.Validation.StudentValidation;
 import utils.Validation.ValidationUtils;
 import view.student.IStudentView;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class StudentController {
     private final IStudentView view;
-    private final IStudentRepo model;
-    public StudentController(IStudentView view, IStudentRepo model) {
+    private final IStudentRepository repository;
+
+    public StudentController(IStudentView view, IStudentRepository repository) {
         this.view = view;
-        this.model = model;
+        this.repository = repository;
         initComponents();
     }
 
@@ -31,8 +30,9 @@ public class StudentController {
         addDoneButtonListener();
         addInactivesCheckBoxListener();
         addTableListener();
-        setFilterFieldListener();
-        view.setTableStudentModel(getAllStudentsDTO(view.isCheckBoxInactivesSelected()));
+        setSearchFieldListener();
+        setSearchButtonListener();
+        view.setTableStudentModel(getAllStudentsDTO());
     }
 
     private void addInsertStudentButtonListener() {
@@ -55,13 +55,13 @@ public class StudentController {
             }
 
             Student student = new Student(name, parsedCpf, email, parsedPhoneN, address);
-            if (!model.insertStudent(student)) {
+            if (!repository.insertStudent(student)) {
                 view.showErrorMessage("Falha ao inserir aluno!");
                 return;
             }
 
             view.clearAllFields();
-            view.setTableStudentModel(getAllStudentsDTO(view.isCheckBoxInactivesSelected()));
+            view.setTableStudentModel(getAllStudentsDTO());
         });
     }
 
@@ -88,14 +88,14 @@ public class StudentController {
             }
 
             Student student = new Student(parsedID, name, parsedCpf, email, parsedPhoneN, address);
-            if (!model.updateStudent(student)) {
+            if (!repository.updateStudent(student)) {
                 view.showErrorMessage("Falha ao atualizar aluno!");
                 return;
             }
 
             view.switchButtons(false);
             view.clearAllFields();
-            view.setTableStudentModel(getAllStudentsDTO(view.isCheckBoxInactivesSelected()));
+            view.setTableStudentModel(getAllStudentsDTO());
         });
     }
 
@@ -115,14 +115,14 @@ public class StudentController {
                 return;
             }
 
-            if (!model.deactivateStudent(parsedID)) {
-                view.showErrorMessage("Falha ao desativar aluno!");
+            if (!repository.deactivateStudent(parsedID)) {
+                view.showErrorMessage("Falha ao excluir aluno!");
                 return;
             }
 
             view.switchButtons(false);
             view.clearAllFields();
-            view.setTableStudentModel(getAllStudentsDTO(view.isCheckBoxInactivesSelected()));
+            view.setTableStudentModel(getAllStudentsDTO());
         });
     }
 
@@ -143,7 +143,7 @@ public class StudentController {
                 return;
             }
 
-            if (!model.reactivateStudent(parsedID)) {
+            if (!repository.reactivateStudent(parsedID)) {
                 view.showErrorMessage("Falha ao reactivar aluno!");
                 return;
             }
@@ -151,7 +151,7 @@ public class StudentController {
             view.clearAllFields();
             view.switchButtons(false);
             view.setButtonReactivate(false);
-            view.setTableStudentModel(getAllStudentsDTO(view.isCheckBoxInactivesSelected()));
+            view.setTableStudentModel(getAllStudentsDTO());
         });
     }
 
@@ -162,7 +162,7 @@ public class StudentController {
                 if (selectedRow >= 0) {
                     String studentId = view.getStudentIdAt(selectedRow);
 
-                    List<Student> student = getStudent(studentId, view.isCheckBoxInactivesSelected());
+                    StudentDTO student = getStudent(studentId);
                     if (student == null) {
                         return;
                     }
@@ -177,7 +177,7 @@ public class StudentController {
                     }
 
                     view.setFieldID(studentId);
-                    view.setFieldTexts(convertStudentsToDTO(student).get(0));
+                    view.setFieldTexts(student);
                 }
             }
         });
@@ -187,7 +187,7 @@ public class StudentController {
         view.addButtonDoneActionListener(e -> {
             view.clearAllFields();
             view.switchButtons(false);
-            view.setTableStudentModel(getAllStudentsDTO(view.isCheckBoxInactivesSelected()));
+            view.setTableStudentModel(getAllStudentsDTO());
         });
     }
 
@@ -195,22 +195,26 @@ public class StudentController {
         view.addCheckBoxInactivesActionListener(e -> searchWithFilter());
     }
 
-    private void setFilterFieldListener() {
-        view.addFieldFilterActionListener(e -> searchWithFilter());
+    private void setSearchFieldListener() {
+        view.addFieldSearchActionListener(e -> searchWithFilter());
+    }
+
+    private void setSearchButtonListener() {
+        view.addSearchButtonActionListener(e -> searchWithFilter());
     }
 
     private void searchWithFilter() {
         String searchBoxData = view.getFilterText();
         if (searchBoxData.isEmpty()) {
-            view.setTableStudentModel(getAllStudentsDTO(view.isCheckBoxInactivesSelected()));
+            view.setTableStudentModel(getAllStudentsDTO());
             return;
         }
-        view.setTableStudentModel(getFilteredStudentsDTO( searchBoxData, view.isCheckBoxInactivesSelected()));
+        view.setTableStudentModel(getAllStudentsDTO());
     }
 
-    private List<Student> getStudent(final String id, final boolean onlyInactive) {
+    private StudentDTO getStudent(final String id) {
         int parsedID;
-        List<Student> student;
+        StudentDTO student;
 
         try {
             parsedID = ParseUtils.parseId(id);
@@ -220,77 +224,48 @@ public class StudentController {
             return null;
         }
 
-        student = mapResultSetToStudents(model.listStudent(parsedID, onlyInactive));
-        if (student.isEmpty()) {
+        student = mapEntityToDTO(repository.listStudent(parsedID, view.isCheckBoxInactivesSelected()));
+        if (student == null) {
             view.showErrorMessage("Falha ao listar aluno!");
             return null;
         }
         return student;
     }
 
-    private List<Student> getFilteredStudents(final String value, final boolean onlyInactive) {
-        if ( value == null) {
-            view.showErrorMessage("Filtro inválido");
-        }
+    public List<StudentDTO> getAllStudentsDTO() {
+        boolean onlyInactive = view.isCheckBoxInactivesSelected();
+        String searchText = view.getFilterText();
 
-        List<Student> students= mapResultSetToStudents(model.listStudentsByParam( value, onlyInactive));
+        List<StudentDTO> students = mapEntityToDTO(repository.listStudentsByParam(searchText, onlyInactive));
 
-
-        // NOTE: will never happen because the list may be empty but not null, and it's not a bug
-        // students.isEmpty() is a valid return because if there are no results for the query, the list will be empty
-        // I left the check just because in future implementations it may be necessary
         if (students == null) {
-            view.showErrorMessage("Falha ao listar alunos filtrados!");
+            view.showErrorMessage("Falha ao listar alunos!");
         }
         return students;
     }
 
-    private List<Student> mapResultSetToStudents(ResultSet rs) {
-        List<Student> studentList = new ArrayList<>();
-        try {
-            while (rs.next()) {
-                Student student = new Student();
-                student.setId(rs.getInt(1));
-                student.setName(rs.getString(2));
-                student.setCpf(rs.getString(3));
-                student.setEmail(rs.getString(4));
-                student.setPhoneNumber(rs.getString(5));
-                student.setAddress(rs.getString(6));
-                studentList.add(student);
-            }
-        } catch (SQLException e) {
-            view.showErrorMessage("Falha ao mapear alunos!");
-        }
-        return studentList;
+    private StudentDTO mapEntityToDTO(Student student) {
+        StudentDTO studentDTO = new StudentDTO();
+        studentDTO.setId(student.getId() + "");
+        studentDTO.setName(student.getName());
+        studentDTO.setCpf(student.getCpf());
+        studentDTO.setEmail(student.getEmail());
+        studentDTO.setPhoneNumber(student.getPhoneNumber());
+        studentDTO.setAddress(student.getAddress());
+        return studentDTO;
     }
 
-    public IStudentView getView() {
-        return view;
-    }
-
-    private List<StudentDTO> convertStudentsToDTO(List<Student> students) {
+    private List<StudentDTO> mapEntityToDTO(List<Student> studentList) {
         List<StudentDTO> studentDTOList = new ArrayList<>();
-        for (Student student : students) {
-            studentDTOList.add(new StudentDTO("" + student.getId(), student.getName(), student.getCpf(), student.getEmail(), student.getPhoneNumber(), student.getAddress()));
+
+        for (Student student : studentList) {
+            studentDTOList.add(mapEntityToDTO(student));
         }
         return studentDTOList;
     }
 
-    public List<StudentDTO> getAllStudentsDTO(final boolean onlyInactive) {
-        List<Student> students = mapResultSetToStudents(model.listAllStudents(onlyInactive));
-
-        // NOTE: will never happen because the list may be empty but not null, and it's not a bug
-        // students.isEmpty() is a valid return because if there are no results for the query, the list will be empty
-        // I left the check just because in future implementations it may be necessary
-        if (students == null) {
-            view.showErrorMessage("Falha ao listar alunos!");
-        }
-        return convertStudentsToDTO(students);
-    }
-
-    private List<StudentDTO> getFilteredStudentsDTO(final String value, final boolean onlyInactive) {
-        List<Student> students = getFilteredStudents(value, onlyInactive);
-        return convertStudentsToDTO(students);
+    public IStudentView getView() {
+        return view;
     }
 }
 
