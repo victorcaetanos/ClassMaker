@@ -4,9 +4,7 @@ import model.classroom.dto.ClassroomDTO;
 import model.discipline.dto.DisciplineDTO;
 import model.myClass.dto.MyClassDTO;
 import model.professor.dto.ProfessorDTO;
-import utils.renderers.CpfCellRenderer;
 import utils.renderers.ItemRenderer;
-import utils.renderers.PhoneNumberCellRenderer;
 import utils.renderers.TimeCellRenderer;
 import view.MyFrame;
 

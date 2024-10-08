@@ -11,23 +11,27 @@ The application will allow the director to efficiently handle the following enti
 
 The application was implemented using Java, MySQL for database management, and Java Swing for the Graphical User Interface. It follows the Model-View-Controller (MVC) architecture and makes use of dependency injection for the model, service and view, which enhances modularity and future testability of the application. <br/>
 
-## Menu
+## Entity Relationship Diagram
+![ER Diagram](images/Database_ER_Diagram.png)
+
+## GUIs
+### Menu
 ![Menu](images/Menu_GUI.jpg)
 
-## Professors
+### Professors
 ![Professors](images/Professor_GUI.jpg)
 
-## Disciplines
+### Disciplines
 ![Disciplines](images/Discipline_GUI.jpg)
 
-## Classrooms
+### Classrooms
 ![Classrooms](images/Classroom_GUI.jpg)
 
-## Classes
+### Classes
 ![Classes](images/Class_GUI.jpg)
 
-## Students
+### Students
 ![Students](images/Student_GUI.jpg)
 
-## Assign Students to Classes
+### Assign Students to Classes
 ![Assign Students to Classes](images/StudentClass_GUI.jpg)

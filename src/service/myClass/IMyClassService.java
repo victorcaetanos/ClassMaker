@@ -12,19 +12,19 @@ import java.util.List;
 
 public interface IMyClassService {
 
-    boolean insertMyClass( String professorId,  String disciplineId,  String classroomId,
-                           String startTime,  String finishTime,  String semester) throws ValidationException;
+    boolean insertMyClass(String professorId, String disciplineId, String classroomId,
+                          String startTime, String finishTime, String semester) throws ValidationException;
 
-    boolean updateMyClass( String myClassId,  String professorId,  String disciplineId,  String classroomId,
-                           String startTime,  String finishTime,  String semester) throws ValidationException;
+    boolean updateMyClass(String myClassId, String professorId, String disciplineId, String classroomId,
+                          String startTime, String finishTime, String semester) throws ValidationException;
 
-    boolean deleteMyClass( String myclassId) throws InvalidIdFormattingException, InvalidIdException, ValidationException;
+    boolean deleteMyClass(String myclassId) throws InvalidIdFormattingException, InvalidIdException, ValidationException;
 
-    boolean activateMyClass( String myclassId) throws ValidationException;
+    boolean activateMyClass(String myclassId) throws ValidationException;
 
-    MyClass getMyClass( String myclassId,  boolean onlyInactive) throws ValidationException;
+    MyClass getMyClass(String myclassId, boolean onlyInactive) throws ValidationException;
 
-    List<MyClass> getMyClassList( String value,  boolean onlyInactive);
+    List<MyClass> getMyClassList(String value, boolean onlyInactive);
 
     List<Professor> getAllActiveProfessorsList();
 

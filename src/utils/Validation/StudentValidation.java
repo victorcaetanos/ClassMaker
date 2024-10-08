@@ -22,7 +22,7 @@ public class StudentValidation {
             if (phoneNumber != null) {
                 ValidationUtils.validatePhoneNumber(phoneNumber);
             }
-            if (address!= null) {
+            if (address != null) {
                 ValidationUtils.validateString(address, ADDRESS);
             }
         } catch (ValidationException error) {

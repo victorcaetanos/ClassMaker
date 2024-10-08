@@ -2,20 +2,16 @@ package controller.myClass;
 
 import exceptions.ValidationException;
 import model.classroom.dto.ClassroomDTO;
-import model.classroom.entity.Classroom;
 import model.discipline.dto.DisciplineDTO;
-import model.discipline.entity.Discipline;
 import model.myClass.dto.MyClassDTO;
 import model.myClass.entity.MyClass;
 import model.professor.dto.ProfessorDTO;
-import model.professor.entity.Professor;
 import service.myClass.IMyClassService;
 import view.myClass.IMyClassView;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Vector;
 
 public class MyClassController {
     private final IMyClassView view;

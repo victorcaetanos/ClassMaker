@@ -18,7 +18,7 @@ public class StudentDTO {
         this.name = name;
     }
 
-    public StudentDTO(String id, String name,String cpf,  String email, String phoneNumber, String address) {
+    public StudentDTO(String id, String name, String cpf, String email, String phoneNumber, String address) {
         this.id = id;
         this.name = name;
         this.cpf = cpf;

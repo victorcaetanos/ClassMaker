@@ -1,8 +1,6 @@
 package service.myClass;
 
 import exceptions.ValidationException;
-import exceptions.formatting.InvalidIdFormattingException;
-import exceptions.parsing.InvalidIdException;
 import model.classroom.entity.Classroom;
 import model.classroom.repository.IClassroomRepository;
 import model.discipline.entity.Discipline;
