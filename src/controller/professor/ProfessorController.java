@@ -1,7 +1,7 @@
 package controller.professor;
 
 import exceptions.ValidationException;
-import model.professor.repository.IProfessorRepo;
+import model.professor.repository.IProfessorRepository;
 import model.professor.entity.Professor;
 import model.professor.dto.ProfessorDTO;
 import utils.ParseUtils;
@@ -9,18 +9,16 @@ import utils.Validation.ProfessorValidation;
 import utils.Validation.ValidationUtils;
 import view.professor.IProfessorView;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ProfessorController {
     private final IProfessorView view;
-    private final IProfessorRepo model;
+    private final IProfessorRepository repository;
 
-    public ProfessorController(IProfessorView view, IProfessorRepo model) {
+    public ProfessorController(IProfessorView view, IProfessorRepository repository) {
         this.view = view;
-        this.model = model;
+        this.repository = repository;
         initComponents();
     }
 
@@ -32,8 +30,9 @@ public class ProfessorController {
         addDoneButtonListener();
         addInactivesCheckBoxListener();
         addTableListener();
-        setFilterFieldListener();
-        view.setTableProfessorModel(getAllProfessorsDTO(view.isCheckBoxInactivesSelected()));
+        setSearchFieldListener();
+        setSearchButtonListener();
+        view.setTableProfessorModel(getAllProfessorsDTOs());
     }
 
     private void addInsertProfessorButtonListener() {
@@ -52,13 +51,13 @@ public class ProfessorController {
             }
 
             Professor professor = new Professor(name, email, phoneNumber);
-            if (!model.insertProfessor(professor)) {
+            if (!repository.insertProfessor(professor)) {
                 view.showErrorMessage("Falha ao inserir professor!");
                 return;
             }
 
             view.clearAllFields();
-            view.setTableProfessorModel(getAllProfessorsDTO(view.isCheckBoxInactivesSelected()));
+            view.setTableProfessorModel(getAllProfessorsDTOs());
         });
     }
 
@@ -81,14 +80,14 @@ public class ProfessorController {
             }
 
             Professor professor = new Professor(parsedID, name, email, parsedPhoneN);
-            if (!model.updateProfessor(professor)) {
+            if (!repository.updateProfessor(professor)) {
                 view.showErrorMessage("Falha ao atualizar professor!");
                 return;
             }
 
             view.switchButtons(false);
             view.clearAllFields();
-            view.setTableProfessorModel(getAllProfessorsDTO(view.isCheckBoxInactivesSelected()));
+            view.setTableProfessorModel(getAllProfessorsDTOs());
         });
     }
 
@@ -108,14 +107,14 @@ public class ProfessorController {
                 return;
             }
 
-            if (!model.deactivateProfessor(parsedID)) {
-                view.showErrorMessage("Falha ao desativar professor!");
+            if (!repository.deactivateProfessor(parsedID)) {
+                view.showErrorMessage("Falha ao excluir professor!");
                 return;
             }
 
             view.switchButtons(false);
             view.clearAllFields();
-            view.setTableProfessorModel(getAllProfessorsDTO(view.isCheckBoxInactivesSelected()));
+            view.setTableProfessorModel(getAllProfessorsDTOs());
         });
     }
 
@@ -136,7 +135,7 @@ public class ProfessorController {
                 return;
             }
 
-            if (!model.reactivateProfessor(parsedID)) {
+            if (!repository.reactivateProfessor(parsedID)) {
                 view.showErrorMessage("Falha ao reactivar professor!");
                 return;
             }
@@ -144,7 +143,7 @@ public class ProfessorController {
             view.clearAllFields();
             view.switchButtons(false);
             view.setButtonReactivate(false);
-            view.setTableProfessorModel(getAllProfessorsDTO(view.isCheckBoxInactivesSelected()));
+            view.setTableProfessorModel(getAllProfessorsDTOs());
         });
     }
 
@@ -155,7 +154,7 @@ public class ProfessorController {
                 if (selectedRow >= 0) {
                     String professorId = view.getProfessorIdAt(selectedRow);
 
-                    List<Professor> professor = getProfessor(professorId, view.isCheckBoxInactivesSelected());
+                    ProfessorDTO professor = getProfessor(professorId, view.isCheckBoxInactivesSelected());
                     if (professor == null) {
                         return;
                     }
@@ -170,7 +169,7 @@ public class ProfessorController {
                     }
 
                     view.setFieldID(professorId);
-                    view.setFieldTexts(convertProfessorsToDTO(professor).get(0));
+                    view.setFieldTexts(professor);
                 }
             }
         });
@@ -180,7 +179,7 @@ public class ProfessorController {
         view.addButtonDoneActionListener(e -> {
             view.clearAllFields();
             view.switchButtons(false);
-            view.setTableProfessorModel(getAllProfessorsDTO(view.isCheckBoxInactivesSelected()));
+            view.setTableProfessorModel(getAllProfessorsDTOs());
         });
     }
 
@@ -188,22 +187,21 @@ public class ProfessorController {
         view.addCheckBoxInactivesActionListener(e -> searchWithFilter());
     }
 
-    private void setFilterFieldListener() {
-        view.addFieldFilterActionListener(e -> searchWithFilter());
+    private void setSearchFieldListener() {
+        view.addSearchFieldActionListener(e -> searchWithFilter());
+    }
+
+    private void setSearchButtonListener() {
+        view.addSearchButtonActionListener(e -> searchWithFilter());
     }
 
     private void searchWithFilter() {
-        String searchBoxData = view.getFilterText();
-        if (searchBoxData.isEmpty()) {
-            view.setTableProfessorModel(getAllProfessorsDTO(view.isCheckBoxInactivesSelected()));
-            return;
-        }
-        view.setTableProfessorModel(getFilteredProfessorsDTO(searchBoxData, view.isCheckBoxInactivesSelected()));
+        view.setTableProfessorModel(getAllProfessorsDTOs());
     }
 
-    private List<Professor> getProfessor(final String id, final boolean onlyInactive) {
+    private ProfessorDTO getProfessor(final String id, final boolean onlyInactive) {
         int parsedID;
-        List<Professor> professor;
+        ProfessorDTO professor;
 
         try {
             parsedID = ParseUtils.parseId(id);
@@ -213,74 +211,46 @@ public class ProfessorController {
             return null;
         }
 
-        professor = mapResultSetToProfessors(model.listProfessor(parsedID, onlyInactive));
-        if (professor.isEmpty()) {
+        professor = mapEntityToDTO(repository.listProfessor(parsedID, onlyInactive));
+        if (professor == null) {
             view.showErrorMessage("Falha ao listar professor!");
             return null;
         }
         return professor;
     }
 
-    private List<Professor> getFilteredProfessors(final String value, final boolean onlyInactive) {
-        if (value == null) {
-            view.showErrorMessage("Filtro inválido");
-        }
+    public List<ProfessorDTO> getAllProfessorsDTOs() {
+        boolean onlyInactive = view.isCheckBoxInactivesSelected();
+        String searchText = view.getFilterText();
+        List<ProfessorDTO> professorList = mapEntityToDTO(repository.listProfessorsByParam(searchText, onlyInactive));
 
-        List<Professor> professors = mapResultSetToProfessors(model.listProfessorsByParam(value, onlyInactive));
-
-        // NOTE: will never happen because the list may be empty but not null, and it's not a bug
-        // professors.isEmpty() is a valid return because if there are no results for the query, the list will be empty
-        // I left the check just because in future implementations it may be necessary
-        if (professors == null) {
-            view.showErrorMessage("Falha ao listar professores filtrados!");
-        }
-        return professors;
-    }
-
-    private List<Professor> mapResultSetToProfessors(ResultSet rs) {
-        List<Professor> professorList = new ArrayList<>();
-        try {
-            while (rs.next()) {
-                Professor professor = new Professor();
-                professor.setId(rs.getInt(1));
-                professor.setName(rs.getString(2));
-                professor.setEmail(rs.getString(3));
-                professor.setPhoneNumber(rs.getString(4));
-                professorList.add(professor);
-            }
-        } catch (SQLException e) {
-            view.showErrorMessage("Falha ao mapear professores!");
+        if (professorList == null) {
+            view.showErrorMessage("Falha ao listar professores!");
         }
         return professorList;
     }
 
-    public IProfessorView getView() {
-        return view;
+    private ProfessorDTO mapEntityToDTO(Professor professor) {
+        ProfessorDTO professorDTO = new ProfessorDTO();
+        professorDTO.setId(professor.getId() + "");
+        professorDTO.setName(professor.getName());
+        professorDTO.setEmail(professor.getEmail());
+        professorDTO.setPhoneNumber(professor.getPhoneNumber());
+        return professorDTO;
     }
 
-    private List<ProfessorDTO> convertProfessorsToDTO(List<Professor> professors) {
+    private List<ProfessorDTO> mapEntityToDTO(List<Professor> professorList) {
         List<ProfessorDTO> professorDTOList = new ArrayList<>();
-        for (Professor professor : professors) {
-            professorDTOList.add(new ProfessorDTO("" + professor.getId(), professor.getName(), professor.getEmail(), professor.getPhoneNumber()));
+
+        for (Professor professor : professorList) {
+            professorDTOList.add(mapEntityToDTO(professor));
         }
+
         return professorDTOList;
     }
 
-    public List<ProfessorDTO> getAllProfessorsDTO(final boolean onlyInactive) {
-        List<Professor> professors = mapResultSetToProfessors(model.listAllProfessors(onlyInactive));
-
-        // NOTE: will never happen because the list may be empty but not null, and it's not a bug
-        // professors.isEmpty() is a valid return because if there are no results for the query, the list will be empty
-        // I left the check just because in future implementations it may be necessary
-        if (professors == null) {
-            view.showErrorMessage("Falha ao listar professores!");
-        }
-        return convertProfessorsToDTO(professors);
-    }
-
-    private List<ProfessorDTO> getFilteredProfessorsDTO(final String value, final boolean onlyInactive) {
-        List<Professor> professors = getFilteredProfessors(value, onlyInactive);
-        return convertProfessorsToDTO(professors);
+    public IProfessorView getView() {
+        return view;
     }
 }
 
