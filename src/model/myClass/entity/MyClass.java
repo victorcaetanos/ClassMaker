@@ -1,10 +1,14 @@
 package model.myClass.entity;
 
+import model.classroom.entity.Classroom;
+import model.discipline.entity.Discipline;
+import model.professor.entity.Professor;
+
 public class MyClass {
     private int id;
-    private int professorId;
-    private int disciplineId;
-    private int classroomId;
+    private Professor professor;
+    private Discipline discipline;
+    private Classroom classroom;
     private String startTime;
     private String finishTime;
     private String semester;
@@ -13,17 +17,21 @@ public class MyClass {
     public MyClass() {
     }
 
-    public MyClass(int professorId, int disciplineId, int classroomId, String startTime, String finishTime, String semester) {
-        this.professorId = professorId;
-        this.disciplineId = disciplineId;
-        this.classroomId = classroomId;
+    public MyClass(int id) {
+        this.id = id;
+    }
+
+    public MyClass(Professor professor, Discipline discipline, Classroom classroom, String startTime, String finishTime, String semester) {
+        this.professor = professor;
+        this.discipline = discipline;
+        this.classroom = classroom;
         this.startTime = startTime;
         this.finishTime = finishTime;
         this.semester = semester;
     }
 
-    public MyClass(int id, int professorId, int disciplineId, int classroomId, String startTime, String finishTime, String semester) {
-        this(professorId, disciplineId, classroomId, startTime, finishTime, semester);
+    public MyClass(int id, Professor professor, Discipline discipline, Classroom classroom, String startTime, String finishTime, String semester) {
+        this(professor, discipline, classroom, startTime, finishTime, semester);
         this.id = id;
     }
 
@@ -35,28 +43,28 @@ public class MyClass {
         this.id = id;
     }
 
-    public int getProfessorId() {
-        return professorId;
+    public Professor getProfessor() {
+        return professor;
     }
 
-    public void setProfessorId(final int professorId) {
-        this.professorId = professorId;
+    public void setProfessor(final Professor professor) {
+        this.professor = professor;
     }
 
-    public int getClassroomId() {
-        return classroomId;
+    public Classroom getClassroom() {
+        return classroom;
     }
 
-    public void setClassroomId(final int classroomId) {
-        this.classroomId = classroomId;
+    public void setClassroom(final Classroom classroom) {
+        this.classroom = classroom;
     }
 
-    public int getDisciplineId() {
-        return disciplineId;
+    public Discipline getDiscipline() {
+        return discipline;
     }
 
-    public void setDisciplineId(final int disciplineId) {
-        this.disciplineId = disciplineId;
+    public void setDiscipline(final Discipline discipline) {
+        this.discipline = discipline;
     }
 
     public String getStartTime() {

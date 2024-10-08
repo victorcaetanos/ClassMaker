@@ -4,7 +4,10 @@ import model.classroom.dto.ClassroomDTO;
 import model.discipline.dto.DisciplineDTO;
 import model.myClass.dto.MyClassDTO;
 import model.professor.dto.ProfessorDTO;
+import utils.renderers.CpfCellRenderer;
 import utils.renderers.ItemRenderer;
+import utils.renderers.PhoneNumberCellRenderer;
+import utils.renderers.TimeCellRenderer;
 import view.MyFrame;
 
 import javax.swing.JTable;
@@ -21,6 +24,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 import javax.swing.text.MaskFormatter;
+import java.awt.*;
 import java.awt.event.ActionListener;
 import java.text.ParseException;
 import java.util.List;
@@ -30,7 +34,9 @@ import java.util.Vector;
 public class MyClassView extends MyFrame implements IMyClassView {
 
     private final String ID = "ID";
-    private final Vector<String> tableColumnNames = new Vector<>(List.of(ID, "Professor", "Disciplina", "Sala", "Hora Início", "Hora Fim", "Semestre"));
+    private final String START_TIME = "Hora Início";
+    private final String FINISH_TIME = "Hora Fim";
+    private final Vector<String> tableColumnNames = new Vector<>(List.of(ID, "Professor", "Disciplina", "Sala", START_TIME, FINISH_TIME, "Semestre"));
     private JLabel titleLabel;
     private JLabel idLabel;
     private JLabel semesterLabel;
@@ -42,7 +48,6 @@ public class MyClassView extends MyFrame implements IMyClassView {
     private JPanel tablePanel;
     private JPanel insertFieldsPanel;
     private JPanel actionsPanel;
-    private JPanel leftFieldsPanel;
     private JPanel rightFieldsPanel;
     private JScrollPane myClassTableScrollPanel;
     private JPanel panelMain;
@@ -61,6 +66,7 @@ public class MyClassView extends MyFrame implements IMyClassView {
     private JComboBox<ProfessorDTO> professorComboBox;
     private JComboBox<ClassroomDTO> classroomComboBox;
     private JComboBox<DisciplineDTO> disciplineComboBox;
+    private JButton searchButton;
 
     public MyClassView() {
 
@@ -70,6 +76,7 @@ public class MyClassView extends MyFrame implements IMyClassView {
         professorComboBox.setRenderer(new ItemRenderer());
         disciplineComboBox.setRenderer(new ItemRenderer());
         classroomComboBox.setRenderer(new ItemRenderer());
+        myClassTable.getTableHeader().setFont(new java.awt.Font("Segoe UI", Font.BOLD, 14));
     }
 
     @Override
@@ -103,6 +110,7 @@ public class MyClassView extends MyFrame implements IMyClassView {
     public void switchButtons(final boolean b) {
         insertButton.setEnabled(!b);
         inactivesCheckBox.setEnabled(!b);
+        searchButton.setEnabled(!b);
         searchField.setEnabled(!b);
         searchField.setEditable(!b);
         updateButton.setEnabled(b);
@@ -183,8 +191,13 @@ public class MyClassView extends MyFrame implements IMyClassView {
     }
 
     @Override
-    public void addFieldSearchActionListener(ActionListener actionListener) {
+    public void addSearchFieldActionListener(ActionListener actionListener) {
         searchField.addActionListener(actionListener);
+    }
+
+    @Override
+    public void addSearchButtonActionListener(ActionListener actionListener) {
+        searchButton.addActionListener(actionListener);
     }
 
     @Override
@@ -219,6 +232,8 @@ public class MyClassView extends MyFrame implements IMyClassView {
         if (myClassList == null) return;
 
         myClassTable.setModel(buildTableModel(myClassList));
+        myClassTable.getColumnModel().getColumn(getColumnIndex(START_TIME)).setCellRenderer(new TimeCellRenderer());
+        myClassTable.getColumnModel().getColumn(getColumnIndex(FINISH_TIME)).setCellRenderer(new TimeCellRenderer());
     }
 
     @Override
@@ -247,7 +262,7 @@ public class MyClassView extends MyFrame implements IMyClassView {
     }
 
     @Override
-    public String getFilterText() {
+    public String getSearchBoxText() {
         return searchField.getText();
     }
 
@@ -264,6 +279,21 @@ public class MyClassView extends MyFrame implements IMyClassView {
     @Override
     public String getComboBoxClassroomId() {
         return ((ClassroomDTO) classroomComboBox.getSelectedItem()).getId();
+    }
+
+    @Override
+    public void setProfessorComboBox(ProfessorDTO professorDTO) {
+        professorComboBox.setSelectedItem(professorDTO);
+    }
+
+    @Override
+    public void setDisciplineComboBox(DisciplineDTO disciplineDTO) {
+        disciplineComboBox.setSelectedItem(disciplineDTO);
+    }
+
+    @Override
+    public void setClassroomComboBox(ClassroomDTO classroomDTO) {
+        classroomComboBox.setSelectedItem(classroomDTO);
     }
 
     @Override
@@ -300,7 +330,7 @@ public class MyClassView extends MyFrame implements IMyClassView {
     @Override
     public boolean confirmReactivation() {
         int deleteConfirmation = JOptionPane.showConfirmDialog(this,
-                "Tem certeza que deseja reativar esse item?",
+                "Tem certeza que deseja ativar esse item?",
                 "Confirmação de Reativação", JOptionPane.YES_NO_OPTION,
                 JOptionPane.WARNING_MESSAGE
         );
@@ -311,8 +341,8 @@ public class MyClassView extends MyFrame implements IMyClassView {
         MaskFormatter startTimeFormatter = null;
         MaskFormatter finishTimeFormatter = null;
         MaskFormatter semesterFormatter = null;
-        String startTimePattern = "##:##:##";
-        String finishTimePattern = "##:##:##";
+        String startTimePattern = "##:##";
+        String finishTimePattern = "##:##";
         String semesterPattern = "####/##";
         char placeholder = ' ';
         try {
