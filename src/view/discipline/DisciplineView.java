@@ -15,6 +15,7 @@ import javax.swing.JFormattedTextField;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
+import java.awt.*;
 import java.awt.event.ActionListener;
 import java.util.List;
 import java.util.Vector;
@@ -38,7 +39,7 @@ public class DisciplineView extends MyFrame implements IDisciplineView {
     private JPanel panelMain;
     private JTextField idField;
     private JTextField nameField;
-    private JTextField filterField;
+    private JTextField searchField;
     private JFormattedTextField codeField;
     private JFormattedTextField descriptionField;
     private JButton insertButton;
@@ -48,12 +49,14 @@ public class DisciplineView extends MyFrame implements IDisciplineView {
     private JButton reactivateButton;
     private JCheckBox inactivesCheckBox;
     private JTable disciplineTable;
+    private JButton searchButton;
 
     public DisciplineView() {
 
         this.setContentPane(panelMain);
         this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         this.setVisible(true);
+        disciplineTable.getTableHeader().setFont(new java.awt.Font("Segoe UI", Font.BOLD, 14));
     }
 
     @Override
@@ -84,8 +87,9 @@ public class DisciplineView extends MyFrame implements IDisciplineView {
     public void switchButtons(final boolean b) {
         insertButton.setEnabled(!b);
         inactivesCheckBox.setEnabled(!b);
-        filterField.setEnabled(!b);
-        filterField.setEditable(!b);
+        searchButton.setEnabled(!b);
+        searchField.setEnabled(!b);
+        searchField.setEditable(!b);
         updateButton.setEnabled(b);
         deleteButton.setEnabled(b);
         doneButton.setEnabled(b);
@@ -142,8 +146,13 @@ public class DisciplineView extends MyFrame implements IDisciplineView {
     }
 
     @Override
-    public void addFieldFilterActionListener(ActionListener actionListener) {
-        filterField.addActionListener(actionListener);
+    public void addSearchFieldActionListener(ActionListener actionListener) {
+        searchField.addActionListener(actionListener);
+    }
+
+    @Override
+    public void addSearchButtonActionListener(ActionListener actionListener) {
+        searchButton.addActionListener(actionListener);
     }
 
     @Override
@@ -190,7 +199,7 @@ public class DisciplineView extends MyFrame implements IDisciplineView {
 
     @Override
     public String getFilterText() {
-        return filterField.getText();
+        return searchField.getText();
     }
 
     @Override
@@ -227,7 +236,7 @@ public class DisciplineView extends MyFrame implements IDisciplineView {
     @Override
     public boolean confirmReactivation() {
         int deleteConfirmation = JOptionPane.showConfirmDialog(this,
-                "Tem certeza que deseja reativar esse item?",
+                "Tem certeza que deseja ativar esse item?",
                 "Confirmação de Reativação",
                 JOptionPane.YES_NO_OPTION,
                 JOptionPane.WARNING_MESSAGE

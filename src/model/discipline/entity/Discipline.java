@@ -10,6 +10,14 @@ public class Discipline {
     public Discipline() {
     }
 
+    public Discipline(int id) {
+        this.id = id;
+    }
+
+    public Discipline(String name) {
+        this.name = name;
+    }
+
     public Discipline(String name, String code, String description) {
         this.name = name;
         this.description = description;
