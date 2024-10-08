@@ -4,7 +4,7 @@ import exceptions.ValidationException;
 
 public class InvalidPhoneNumberFormattingException extends ValidationException {
     public InvalidPhoneNumberFormattingException() {
-        super("Telefone com formatação incorreta!!");
+        super("Telefone com formatação incorreta!");
     }
 
     public InvalidPhoneNumberFormattingException(String message) {
