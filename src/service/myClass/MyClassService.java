@@ -16,10 +16,10 @@ import utils.Validation.ValidationUtils;
 import java.util.List;
 
 public class MyClassService implements IMyClassService {
-    private IMyClassRepository myClassRepo;
-    private IProfessorRepository professorRepo;
-    private IDisciplineRepository disciplineRepo;
-    private IClassroomRepository classroomRepo;
+    private final IMyClassRepository myClassRepo;
+    private final IProfessorRepository professorRepo;
+    private final IDisciplineRepository disciplineRepo;
+    private final IClassroomRepository classroomRepo;
 
     public MyClassService(
             IMyClassRepository myClassRepo,

@@ -14,9 +14,9 @@ import utils.Validation.ValidationUtils;
 import java.util.List;
 
 public class StudentClassService implements IStudentClassService {
-    private IStudentClassRepository studentClassRepo;
-    private IStudentRepository studentRepo;
-    private IMyClassRepository myClassRepo;
+    private final IStudentClassRepository studentClassRepo;
+    private final IStudentRepository studentRepo;
+    private final IMyClassRepository myClassRepo;
 
     public StudentClassService(
             IStudentClassRepository studentClassRepo,
