@@ -50,7 +50,7 @@ public class ProfessorController {
                 return;
             }
 
-            Professor professor = new Professor(name, email, phoneNumber);
+            Professor professor = new Professor(name, email, parsedPhoneN);
             if (!repository.insertProfessor(professor)) {
                 view.showErrorMessage("Falha ao inserir professor!");
                 return;

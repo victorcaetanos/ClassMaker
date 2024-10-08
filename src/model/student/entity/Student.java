@@ -25,7 +25,7 @@ public class Student {
     }
 
     public Student(final int id, final String name, final String cpf, final String email, final String phoneNumber, final String address) {
-        this(cpf, name, email, phoneNumber, address);
+        this(name, cpf, email, phoneNumber, address);
         this.id = id;
     }
 
