@@ -11,11 +11,11 @@ import java.util.List;
 
 public interface IMyClassView {
 
-    void setFieldID(final String id);
+    void setFieldID(String id);
 
-    void setTableMyClassModel(final List<MyClassDTO> myClassList);
+    void setTableMyClassModel(List<MyClassDTO> myClassList);
 
-    void setButtonReactivate(final boolean b);
+    void setButtonReactivate(boolean b);
 
     void setFieldTexts(MyClassDTO myClass);
 
@@ -27,9 +27,9 @@ public interface IMyClassView {
 
     String getFinishTimeText();
 
-    String getFilterText();
+    String getSearchBoxText();
 
-    String getMyClassIdAt(final int row);
+    String getMyClassIdAt(int row);
 
     int getSelectedMyClassRowIndex();
 
@@ -38,6 +38,12 @@ public interface IMyClassView {
     String getComboBoxDisciplineId();
 
     String getComboBoxClassroomId();
+
+    void setProfessorComboBox(ProfessorDTO professorDTO);
+
+    void setDisciplineComboBox(DisciplineDTO disciplineDTO);
+
+    void setClassroomComboBox(ClassroomDTO classroomDTO);
 
     boolean isCheckBoxInactivesSelected();
 
@@ -49,31 +55,33 @@ public interface IMyClassView {
 
     void clearAllFields();
 
-    void populateProfessorComboBox(final List<ProfessorDTO> professorList);
+    void populateProfessorComboBox(List<ProfessorDTO> professorList);
 
-    void populateDisciplineComboBox(final List<DisciplineDTO> disciplineList);
+    void populateDisciplineComboBox(List<DisciplineDTO> disciplineList);
 
-    void populateClassroomComboBox(final List<ClassroomDTO> classroomList);
+    void populateClassroomComboBox(List<ClassroomDTO> classroomList);
 
-    void showErrorMessage(final String message);
+    void showErrorMessage(String message);
 
-    void switchButtons(final boolean b);
+    void switchButtons(boolean b);
 
-    void addButtonInsertActionListener(final ActionListener actionListener);
+    void addButtonInsertActionListener(ActionListener actionListener);
 
-    void addButtonDeleteActionListener(final ActionListener actionListener);
+    void addButtonDeleteActionListener(ActionListener actionListener);
 
-    void addButtonUpdateActionListener(final ActionListener actionListener);
+    void addButtonUpdateActionListener(ActionListener actionListener);
 
-    void addButtonDoneActionListener(final ActionListener actionListener);
+    void addButtonDoneActionListener(ActionListener actionListener);
 
-    void addButtonReactivateActionListener(final ActionListener actionListener);
+    void addButtonReactivateActionListener(ActionListener actionListener);
 
-    void addCheckBoxInactivesActionListener(final ActionListener actionListener);
+    void addCheckBoxInactivesActionListener(ActionListener actionListener);
 
-    void addFieldSearchActionListener(final ActionListener actionListener);
+    void addSearchFieldActionListener(ActionListener actionListener);
 
-    void addTableMyClassListSelectionListener(final ListSelectionListener listSelectionListener);
+    void addSearchButtonActionListener(ActionListener actionListener);
+
+    void addTableMyClassListSelectionListener(ListSelectionListener listSelectionListener);
 
     int getColumnIndex(String columnName);
 }

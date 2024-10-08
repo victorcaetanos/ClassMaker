@@ -15,7 +15,7 @@ public abstract class MyFrame extends JFrame {
         this.setIcon(getClass().getResourceAsStream("/icons/AppIcon.png"));
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.pack();
-        this.setSize(800, 600);
+        this.setSize(1200, 900);
         this.setLocationRelativeTo(null);
         this.setResizable(false);
     }

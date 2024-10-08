@@ -1,37 +1,35 @@
 package model.student_class.entity;
 
+import model.myClass.entity.MyClass;
+import model.student.entity.Student;
+
 public class StudentClass {
-    private int studentId;
-    private int classId;
+    private Student student;
+    private MyClass myClass;
     private boolean inactive;
 
     public StudentClass() {
     }
 
-    public StudentClass(int studentId, int classId) {
-        this.studentId = studentId;
-        this.classId = classId;
+    public StudentClass(Student student, MyClass myClass) {
+        this.student = student;
+        this.myClass = myClass;
     }
 
-    public StudentClass(int studentId, int classId, boolean inactive) {
-        this(studentId, classId);
-        this.inactive = inactive;
+    public Student getStudent() {
+        return student;
     }
 
-    public int getStudentId() {
-        return studentId;
+    public void setStudent(Student student) {
+        this.student = student;
     }
 
-    public void setStudentId(int studentId) {
-        this.studentId = studentId;
+    public MyClass getMyClass() {
+        return myClass;
     }
 
-    public int getClassId() {
-        return classId;
-    }
-
-    public void setClassId(int classId) {
-        this.classId = classId;
+    public void setMyClass(MyClass myClass) {
+        this.myClass = myClass;
     }
 
     public boolean isInactive() {

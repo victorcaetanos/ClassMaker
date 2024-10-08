@@ -12,7 +12,11 @@ public class Student {
     public Student() {
     }
 
-    public Student(String name, String cpf, String email, String phoneNumber, String address) {
+    public Student(final int id) {
+        this.id = id;
+    }
+
+    public Student(final String name, final String cpf, final String email, final String phoneNumber, final String address) {
         this.name = name;
         this.cpf = cpf;
         this.email = email;
@@ -20,7 +24,7 @@ public class Student {
         this.address = address;
     }
 
-    public Student(int id, String name, String cpf, String email, String phoneNumber, String address) {
+    public Student(final int id, final String name, final String cpf, final String email, final String phoneNumber, final String address) {
         this(cpf, name, email, phoneNumber, address);
         this.id = id;
     }
@@ -29,7 +33,7 @@ public class Student {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(final int id) {
         this.id = id;
     }
 
@@ -37,7 +41,7 @@ public class Student {
         return name;
     }
 
-    public void setName(String name) {
+    public void setName(final String name) {
         this.name = name;
     }
 
@@ -45,7 +49,7 @@ public class Student {
         return cpf;
     }
 
-    public void setCpf(String cpf) {
+    public void setCpf(final String cpf) {
         this.cpf = cpf;
     }
 
@@ -53,7 +57,7 @@ public class Student {
         return email;
     }
 
-    public void setEmail(String email) {
+    public void setEmail(final String email) {
         this.email = email;
     }
 
@@ -61,7 +65,7 @@ public class Student {
         return phoneNumber;
     }
 
-    public void setPhoneNumber(String phoneNumber) {
+    public void setPhoneNumber(final String phoneNumber) {
         this.phoneNumber = phoneNumber;
     }
 
@@ -69,7 +73,7 @@ public class Student {
         return address;
     }
 
-    public void setAddress(String address) {
+    public void setAddress(final String address) {
         this.address = address;
     }
 
@@ -77,7 +81,7 @@ public class Student {
         return inactive;
     }
 
-    public void setInactive(boolean inactive) {
+    public void setInactive(final boolean inactive) {
         this.inactive = inactive;
     }
 }

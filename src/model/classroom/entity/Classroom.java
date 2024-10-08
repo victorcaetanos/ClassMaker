@@ -10,6 +10,14 @@ public class Classroom {
     public Classroom() {
     }
 
+    public Classroom(int id) {
+        this.id = id;
+    }
+
+    public Classroom(String name) {
+        this.name = name;
+    }
+
     public Classroom(String name, int capacity, String location) {
         this.name = name;
         this.capacity = capacity;

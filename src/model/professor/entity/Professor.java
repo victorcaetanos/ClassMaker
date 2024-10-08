@@ -10,6 +10,14 @@ public class Professor {
     public Professor() {
     }
 
+    public Professor(int id) {
+        this.id = id;
+    }
+
+    public Professor(String name) {
+        this.name = name;
+    }
+
     public Professor(String name, String email, String phoneNumber) {
         this.name = name;
         this.phoneNumber = phoneNumber;

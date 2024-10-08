@@ -2,25 +2,23 @@ package controller.discipline;
 
 import exceptions.ValidationException;
 import model.discipline.entity.Discipline;
-import model.discipline.repository.IDisciplineRepo;
+import model.discipline.repository.IDisciplineRepository;
 import model.discipline.dto.DisciplineDTO;
 import utils.ParseUtils;
 import utils.Validation.DisciplineValidation;
 import utils.Validation.ValidationUtils;
 import view.discipline.IDisciplineView;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class DisciplineController {
     private final IDisciplineView view;
-    private final IDisciplineRepo model;
+    private final IDisciplineRepository repository;
 
-    public DisciplineController(IDisciplineView view, IDisciplineRepo model) {
+    public DisciplineController(IDisciplineView view, IDisciplineRepository repository) {
         this.view = view;
-        this.model = model;
+        this.repository = repository;
         initComponents();
     }
 
@@ -32,8 +30,9 @@ public class DisciplineController {
         addDoneButtonListener();
         addInactivesCheckBoxListener();
         addTableListener();
-        setFilterFieldListener();
-        view.setTableDisciplineModel(getAllDisciplinesDTO(view.isCheckBoxInactivesSelected()));
+        setSearchFieldListener();
+        setSearchButtonListener();
+        view.setTableDisciplineModel(getAllDisciplinesDTOs());
     }
 
     private void addInsertDisciplineButtonListener() {
@@ -50,13 +49,13 @@ public class DisciplineController {
             }
 
             Discipline discipline = new Discipline(name, code, description);
-            if (!model.insertDiscipline(discipline)) {
+            if (!repository.insertDiscipline(discipline)) {
                 view.showErrorMessage("Falha ao inserir sala!");
                 return;
             }
 
             view.clearAllFields();
-            view.setTableDisciplineModel(getAllDisciplinesDTO(view.isCheckBoxInactivesSelected()));
+            view.setTableDisciplineModel(getAllDisciplinesDTOs());
         });
     }
 
@@ -77,14 +76,14 @@ public class DisciplineController {
             }
 
             Discipline discipline = new Discipline(parsedID, name, code, description);
-            if (!model.updateDiscipline(discipline)) {
+            if (!repository.updateDiscipline(discipline)) {
                 view.showErrorMessage("Falha ao atualizar sala!");
                 return;
             }
 
             view.switchButtons(false);
             view.clearAllFields();
-            view.setTableDisciplineModel(getAllDisciplinesDTO(view.isCheckBoxInactivesSelected()));
+            view.setTableDisciplineModel(getAllDisciplinesDTOs());
         });
     }
 
@@ -104,14 +103,14 @@ public class DisciplineController {
                 return;
             }
 
-            if (!model.deactivateDiscipline(parsedID)) {
-                view.showErrorMessage("Falha ao desativar sala!");
+            if (!repository.deactivateDiscipline(parsedID)) {
+                view.showErrorMessage("Falha ao excluir sala!");
                 return;
             }
 
             view.switchButtons(false);
             view.clearAllFields();
-            view.setTableDisciplineModel(getAllDisciplinesDTO(view.isCheckBoxInactivesSelected()));
+            view.setTableDisciplineModel(getAllDisciplinesDTOs());
         });
     }
 
@@ -132,7 +131,7 @@ public class DisciplineController {
                 return;
             }
 
-            if (!model.reactivateDiscipline(parsedID)) {
+            if (!repository.reactivateDiscipline(parsedID)) {
                 view.showErrorMessage("Falha ao reactivar sala!");
                 return;
             }
@@ -140,7 +139,7 @@ public class DisciplineController {
             view.clearAllFields();
             view.switchButtons(false);
             view.setButtonReactivate(false);
-            view.setTableDisciplineModel(getAllDisciplinesDTO(view.isCheckBoxInactivesSelected()));
+            view.setTableDisciplineModel(getAllDisciplinesDTOs());
         });
     }
 
@@ -151,7 +150,7 @@ public class DisciplineController {
                 if (selectedRow >= 0) {
                     String disciplineId = view.getDisciplineIdAt(selectedRow);
 
-                    List<Discipline> discipline = getDiscipline(disciplineId, view.isCheckBoxInactivesSelected());
+                    DisciplineDTO discipline = getDiscipline(disciplineId, view.isCheckBoxInactivesSelected());
                     if (discipline == null) {
                         return;
                     }
@@ -166,7 +165,7 @@ public class DisciplineController {
                     }
 
                     view.setFieldId(disciplineId);
-                    view.setFieldTexts(convertDisciplinesToDTO(discipline).get(0));
+                    view.setFieldTexts(discipline);
                 }
             }
         });
@@ -176,7 +175,7 @@ public class DisciplineController {
         view.addButtonDoneActionListener(e -> {
             view.clearAllFields();
             view.switchButtons(false);
-            view.setTableDisciplineModel(getAllDisciplinesDTO(view.isCheckBoxInactivesSelected()));
+            view.setTableDisciplineModel(getAllDisciplinesDTOs());
         });
     }
 
@@ -184,22 +183,21 @@ public class DisciplineController {
         view.addCheckBoxInactivesActionListener(e -> searchWithFilter());
     }
 
-    private void setFilterFieldListener() {
-        view.addFieldFilterActionListener(e -> searchWithFilter());
+    private void setSearchFieldListener() {
+        view.addSearchFieldActionListener(e -> searchWithFilter());
+    }
+
+    private void setSearchButtonListener() {
+        view.addSearchButtonActionListener(e -> searchWithFilter());
     }
 
     private void searchWithFilter() {
-        String searchBoxData = view.getFilterText();
-        if (searchBoxData.isEmpty()) {
-            view.setTableDisciplineModel(getAllDisciplinesDTO(view.isCheckBoxInactivesSelected()));
-            return;
-        }
-        view.setTableDisciplineModel(getFilteredDisciplinesDTO(searchBoxData, view.isCheckBoxInactivesSelected()));
+        view.setTableDisciplineModel(getAllDisciplinesDTOs());
     }
 
-    private List<Discipline> getDiscipline(final String id, final boolean onlyInactive) {
+    private DisciplineDTO getDiscipline(final String id, final boolean onlyInactive) {
         int parsedID;
-        List<Discipline> discipline;
+        DisciplineDTO discipline;
 
         try {
             parsedID = ParseUtils.parseId(id);
@@ -209,74 +207,47 @@ public class DisciplineController {
             return null;
         }
 
-        discipline = mapResultSetToDisciplines(model.listDiscipline(parsedID, onlyInactive));
-        if (discipline.isEmpty()) {
+        discipline = mapEntityToDTO(repository.listDiscipline(parsedID, onlyInactive));
+        if (discipline == null) {
             view.showErrorMessage("Falha ao listar sala!");
             return null;
         }
         return discipline;
     }
 
-    private List<Discipline> getFilteredDisciplines(final String value, final boolean onlyInactive) {
-        if (value == null) {
-            view.showErrorMessage("Filtro inválido");
-        }
+    public List<DisciplineDTO> getAllDisciplinesDTOs() {
+        boolean onlyInactive = view.isCheckBoxInactivesSelected();
+        String searchText = view.getFilterText();
 
-        List<Discipline> disciplines = mapResultSetToDisciplines(model.listDisciplinesByParam(value, onlyInactive));
+        List<DisciplineDTO> disciplineList = mapEntityToDTO(repository.listDisciplinesByParam(searchText, onlyInactive));
 
-        // NOTE: will never happen because the list may be empty but not null, and it's not a bug
-        // disciplines.isEmpty() is a valid return because if there are no results for the query, the list will be empty
-        // I left the check just because in future implementations it may be necessary
-        if (disciplines == null) {
-            view.showErrorMessage("Falha ao listar salas filtradas!");
-        }
-        return disciplines;
-    }
-
-    private List<Discipline> mapResultSetToDisciplines(ResultSet rs) {
-        List<Discipline> disciplineList = new ArrayList<>();
-        try {
-            while (rs.next()) {
-                Discipline discipline = new Discipline();
-                discipline.setId(rs.getInt(1));
-                discipline.setName(rs.getString(2));
-                discipline.setCode(rs.getString(3));
-                discipline.setDescription(rs.getString(4));
-                disciplineList.add(discipline);
-            }
-        } catch (SQLException e) {
-            view.showErrorMessage("Falha ao mapear salas!");
+        if (disciplineList == null) {
+            view.showErrorMessage("Falha ao listar salas!");
         }
         return disciplineList;
     }
 
-    public IDisciplineView getView() {
-        return view;
+    private DisciplineDTO mapEntityToDTO(Discipline discipline) {
+        DisciplineDTO disciplineDTO = new DisciplineDTO();
+        disciplineDTO.setId(discipline.getId() + "");
+        disciplineDTO.setName(discipline.getName());
+        disciplineDTO.setCode(discipline.getCode());
+        disciplineDTO.setDescription(discipline.getDescription());
+        return disciplineDTO;
     }
 
-    private List<DisciplineDTO> convertDisciplinesToDTO(List<Discipline> disciplines) {
+    private List<DisciplineDTO> mapEntityToDTO(List<Discipline> disciplineList) {
         List<DisciplineDTO> disciplineDTOList = new ArrayList<>();
-        for (Discipline discipline : disciplines) {
-            disciplineDTOList.add(new DisciplineDTO("" + discipline.getId(), discipline.getName(), discipline.getCode(), discipline.getDescription()));
+
+        for (Discipline discipline : disciplineList) {
+            disciplineDTOList.add(mapEntityToDTO(discipline));
         }
+
         return disciplineDTOList;
     }
 
-    public List<DisciplineDTO> getAllDisciplinesDTO(final boolean onlyInactive) {
-        List<Discipline> disciplines = mapResultSetToDisciplines(model.listAllDisciplines(onlyInactive));
-
-        // NOTE: will never happen because the list may be empty but not null, and it's not a bug
-        // disciplines.isEmpty() is a valid return because if there are no results for the query, the list will be empty
-        // I left the check just because in future implementations it may be necessary
-        if (disciplines == null) {
-            view.showErrorMessage("Falha ao listar salas!");
-        }
-        return convertDisciplinesToDTO(disciplines);
-    }
-
-    private List<DisciplineDTO> getFilteredDisciplinesDTO(final String value, final boolean onlyInactive) {
-        List<Discipline> disciplines = getFilteredDisciplines(value, onlyInactive);
-        return convertDisciplinesToDTO(disciplines);
+    public IDisciplineView getView() {
+        return view;
     }
 }
 

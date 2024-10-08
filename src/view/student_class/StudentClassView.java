@@ -12,6 +12,7 @@ import javax.swing.*;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
+import java.awt.*;
 import java.awt.event.ActionListener;
 import java.util.List;
 import java.util.Map;
@@ -54,6 +55,9 @@ public class StudentClassView extends MyFrame implements IStudentClassView {
     private JScrollPane myClassTableScrollPanel;
     private JScrollPane studentTableScrollPanel;
     private JScrollPane studentClassTableScrollPanel;
+    private JButton myClassSearchButton;
+    private JButton studentSearchButton;
+    private JButton studentClassSearchButton;
 
     public StudentClassView() {
 
@@ -62,6 +66,9 @@ public class StudentClassView extends MyFrame implements IStudentClassView {
         this.setVisible(true);
         this.setSize(1200, 900);
         this.setLocationRelativeTo(null);
+        myClassTable.getTableHeader().setFont(new java.awt.Font("Segoe UI", Font.BOLD, 14));
+        studentTable.getTableHeader().setFont(new java.awt.Font("Segoe UI", Font.BOLD, 14));
+        studentClassTable.getTableHeader().setFont(new java.awt.Font("Segoe UI", Font.BOLD, 14));
     }
 
     @Override
@@ -86,10 +93,22 @@ public class StudentClassView extends MyFrame implements IStudentClassView {
 
     private Vector<Object> buildRow(Object obj) {
         if (obj instanceof MyClassDTO myClass) {
+            setEnableFirstTableButtons(false);
+            setEnableSecondTableButtons(false);
+            setEnableThirdTableButtons(false);
+            myClassTable.clearSelection(); // redundant but at least explicit
+            studentTable.clearSelection();
+            studentClassTable.clearSelection();
             return buildMyClassRow(myClass);
         } else if (obj instanceof StudentDTO studentDTO) {
+            setEnableSecondTableButtons(false);
+            setEnableThirdTableButtons(false);
+            studentTable.clearSelection(); // redundant but at least explicit
+            studentClassTable.clearSelection();
             return buildStudentRow(studentDTO);
         } else if (obj instanceof StudentClassDTO studentClassDTO) {
+            setEnableThirdTableButtons(false);
+            studentClassTable.clearSelection(); // redundant but at least explicit
             return buildStudentClassRow(studentClassDTO);
         }
         return null;
@@ -126,13 +145,14 @@ public class StudentClassView extends MyFrame implements IStudentClassView {
 
     @Override
     public void setEnableFirstTableButtons(final boolean b) {
+        // myClassSearchButton.setEnabled(!b);
         studentSearchBox.setEnabled(b);
+        studentSearchButton.setEnabled(b);
         studentTable.setEnabled(b);
         studentClassSearchBox.setEnabled(b);
+        studentClassSearchButton.setEnabled(b);
         studentClassTable.setEnabled(b);
         inactivesStudentClassCheckBox.setEnabled(b);
-        deleteButton.setEnabled(!b);
-        reactivateButton.setEnabled(!b);
     }
 
     @Override
@@ -187,6 +207,21 @@ public class StudentClassView extends MyFrame implements IStudentClassView {
     }
 
     @Override
+    public void addMyClassSearchButtonActionListener(ActionListener actionListener) {
+        myClassSearchButton.addActionListener(actionListener);
+    }
+
+    @Override
+    public void addStudentSearchButtonActionListener(ActionListener actionListener) {
+        studentSearchButton.addActionListener(actionListener);
+    }
+
+    @Override
+    public void addStudentClassSearchButtonActionListener(ActionListener actionListener) {
+        studentClassSearchButton.addActionListener(actionListener);
+    }
+
+    @Override
     public void addTableMyClassListSelectionListener(ListSelectionListener listSelectionListener) {
         myClassTable.getSelectionModel().addListSelectionListener(listSelectionListener);
     }
@@ -225,7 +260,7 @@ public class StudentClassView extends MyFrame implements IStudentClassView {
     }
 
     @Override
-    public void setTableStudentClassModel(final List<StudentClassDTO> studentClassList) {
+    public void setTableStudentMyClassModel(final List<StudentClassDTO> studentClassList) {
         if (studentClassList == null) return;
         studentClassTable.setModel(buildTableModel(studentClassList));
 
@@ -306,7 +341,7 @@ public class StudentClassView extends MyFrame implements IStudentClassView {
     @Override
     public boolean confirmReactivation() {
         int deleteConfirmation = JOptionPane.showConfirmDialog(this,
-                "Tem certeza que deseja reativar esse item?",
+                "Tem certeza que deseja ativar esse item?",
                 "Confirmação de Reativação",
                 JOptionPane.YES_NO_OPTION,
                 JOptionPane.WARNING_MESSAGE

@@ -2,25 +2,23 @@ package controller.classroom;
 
 import exceptions.ValidationException;
 import model.classroom.entity.Classroom;
-import model.classroom.repository.IClassroomRepo;
+import model.classroom.repository.IClassroomRepository;
 import model.classroom.dto.ClassroomDTO;
 import utils.ParseUtils;
 import utils.Validation.ClassroomValidation;
 import utils.Validation.ValidationUtils;
 import view.classroom.IClassroomView;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ClassroomController {
     private final IClassroomView view;
-    private final IClassroomRepo model;
+    private final IClassroomRepository repository;
 
-    public ClassroomController(IClassroomView view, IClassroomRepo model) {
+    public ClassroomController(IClassroomView view, IClassroomRepository repository) {
         this.view = view;
-        this.model = model;
+        this.repository = repository;
         initComponents();
     }
 
@@ -32,8 +30,9 @@ public class ClassroomController {
         addDoneButtonListener();
         addInactivesCheckBoxListener();
         addTableListener();
-        setFilterFieldListener();
-        view.setTableClassroomModel(getAllClassroomsDTO(view.isCheckBoxInactivesSelected()));
+        setSearchFieldListener();
+        setSearchButtonListener();
+        view.setTableClassroomModel(getAllClassroomDTOs());
     }
 
     private void addInsertClassroomButtonListener() {
@@ -52,13 +51,13 @@ public class ClassroomController {
             }
 
             Classroom classroom = new Classroom(name, parsedCapacity, location);
-            if (!model.insertClassroom(classroom)) {
+            if (!repository.insertClassroom(classroom)) {
                 view.showErrorMessage("Falha ao inserir sala!");
                 return;
             }
 
             view.clearAllFields();
-            view.setTableClassroomModel(getAllClassroomsDTO(view.isCheckBoxInactivesSelected()));
+            view.setTableClassroomModel(getAllClassroomDTOs());
         });
     }
 
@@ -81,14 +80,14 @@ public class ClassroomController {
             }
 
             Classroom classroom = new Classroom(parsedID, name, parsedCapacity, location);
-            if (!model.updateClassroom(classroom)) {
+            if (!repository.updateClassroom(classroom)) {
                 view.showErrorMessage("Falha ao atualizar sala!");
                 return;
             }
 
             view.switchButtons(false);
             view.clearAllFields();
-            view.setTableClassroomModel(getAllClassroomsDTO(view.isCheckBoxInactivesSelected()));
+            view.setTableClassroomModel(getAllClassroomDTOs());
         });
     }
 
@@ -108,14 +107,14 @@ public class ClassroomController {
                 return;
             }
 
-            if (!model.deactivateClassroom(parsedID)) {
-                view.showErrorMessage("Falha ao desativar sala!");
+            if (!repository.deactivateClassroom(parsedID)) {
+                view.showErrorMessage("Falha ao excluir sala!");
                 return;
             }
 
             view.switchButtons(false);
             view.clearAllFields();
-            view.setTableClassroomModel(getAllClassroomsDTO(view.isCheckBoxInactivesSelected()));
+            view.setTableClassroomModel(getAllClassroomDTOs());
         });
     }
 
@@ -136,7 +135,7 @@ public class ClassroomController {
                 return;
             }
 
-            if (!model.reactivateClassroom(parsedID)) {
+            if (!repository.reactivateClassroom(parsedID)) {
                 view.showErrorMessage("Falha ao reactivar sala!");
                 return;
             }
@@ -144,7 +143,7 @@ public class ClassroomController {
             view.clearAllFields();
             view.switchButtons(false);
             view.setButtonReactivate(false);
-            view.setTableClassroomModel(getAllClassroomsDTO(view.isCheckBoxInactivesSelected()));
+            view.setTableClassroomModel(getAllClassroomDTOs());
         });
     }
 
@@ -155,7 +154,7 @@ public class ClassroomController {
                 if (selectedRow >= 0) {
                     String classroomId = view.getClassroomIdAt(selectedRow);
 
-                    List<Classroom> classroom = getClassroom(classroomId, view.isCheckBoxInactivesSelected());
+                    ClassroomDTO classroom = getClassroom(classroomId, view.isCheckBoxInactivesSelected());
                     if (classroom == null) {
                         return;
                     }
@@ -170,7 +169,7 @@ public class ClassroomController {
                     }
 
                     view.setFieldID(classroomId);
-                    view.setFieldTexts(convertClassroomsToDTO(classroom).get(0));
+                    view.setFieldTexts(classroom);
                 }
             }
         });
@@ -180,7 +179,7 @@ public class ClassroomController {
         view.addButtonDoneActionListener(e -> {
             view.clearAllFields();
             view.switchButtons(false);
-            view.setTableClassroomModel(getAllClassroomsDTO(view.isCheckBoxInactivesSelected()));
+            view.setTableClassroomModel(getAllClassroomDTOs());
         });
     }
 
@@ -188,22 +187,21 @@ public class ClassroomController {
         view.addCheckBoxInactivesActionListener(e -> searchWithFilter());
     }
 
-    private void setFilterFieldListener() {
-        view.addFieldFilterActionListener(e -> searchWithFilter());
+    private void setSearchFieldListener() {
+        view.addSearchFieldActionListener(e -> searchWithFilter());
+    }
+
+    private void setSearchButtonListener() {
+        view.addSearchButtonActionListener(e -> searchWithFilter());
     }
 
     private void searchWithFilter() {
-        String searchBoxData = view.getFilterText();
-        if (searchBoxData.isEmpty()) {
-            view.setTableClassroomModel(getAllClassroomsDTO(view.isCheckBoxInactivesSelected()));
-            return;
-        }
-        view.setTableClassroomModel(getFilteredClassroomsDTO(searchBoxData, view.isCheckBoxInactivesSelected()));
+        view.setTableClassroomModel(getAllClassroomDTOs());
     }
 
-    private List<Classroom> getClassroom(final String id, final boolean onlyInactive) {
+    private ClassroomDTO getClassroom(final String id, final boolean onlyInactive) {
         int parsedID;
-        List<Classroom> classroom;
+        ClassroomDTO classroom;
 
         try {
             parsedID = ParseUtils.parseId(id);
@@ -213,74 +211,49 @@ public class ClassroomController {
             return null;
         }
 
-        classroom = mapResultSetToClassrooms(model.listClassroom(parsedID, onlyInactive));
-        if (classroom.isEmpty()) {
+        classroom = mapEntityToDTO(repository.listClassroom(parsedID, onlyInactive));
+        if (classroom == null) {
             view.showErrorMessage("Falha ao listar sala!");
             return null;
         }
         return classroom;
     }
 
-    private List<Classroom> getFilteredClassrooms(final String value, final boolean onlyInactive) {
-        if (value == null) {
-            view.showErrorMessage("Filtro inválido");
-        }
+    public List<ClassroomDTO> getAllClassroomDTOs() {
+        boolean onlyInactive = view.isCheckBoxInactivesSelected();
+        String searchText = view.getFilterText();
 
-        List<Classroom> classrooms = mapResultSetToClassrooms(model.listClassroomsByParam(value, onlyInactive));
+        List<ClassroomDTO> classroomList = mapEntityToDTO(repository.listClassroomsByParam(searchText, onlyInactive));
 
-        // NOTE: will never happen because the list may be empty but not null, and it's not a bug
-        // classrooms.isEmpty() is a valid return because if there are no results for the query, the list will be empty
-        // I left the check just because in future implementations it may be necessary
-        if (classrooms == null) {
-            view.showErrorMessage("Falha ao listar salas filtradas!");
-        }
-        return classrooms;
-    }
-
-    private List<Classroom> mapResultSetToClassrooms(ResultSet rs) {
-        List<Classroom> classroomList = new ArrayList<>();
-        try {
-            while (rs.next()) {
-                Classroom classroom = new Classroom();
-                classroom.setId(rs.getInt(1));
-                classroom.setName(rs.getString(2));
-                classroom.setCapacity(rs.getInt(3));
-                classroom.setLocation(rs.getString(4));
-                classroomList.add(classroom);
-            }
-        } catch (SQLException e) {
-            view.showErrorMessage("Falha ao mapear salas!");
+        if (classroomList == null) {
+            view.showErrorMessage("Falha ao listar salas!");
         }
         return classroomList;
     }
 
-    public IClassroomView getView() {
-        return view;
+    private ClassroomDTO mapEntityToDTO(Classroom classroom) {
+        if (classroom == null) {
+            return null;
+        }
+        ClassroomDTO classroomDTO = new ClassroomDTO();
+        classroomDTO.setId(classroom.getId() + "");
+        classroomDTO.setName(classroom.getName());
+        classroomDTO.setCapacity(classroom.getCapacity() + "");
+        classroomDTO.setLocation(classroom.getLocation());
+        return classroomDTO;
     }
 
-    private List<ClassroomDTO> convertClassroomsToDTO(List<Classroom> classrooms) {
+    private List<ClassroomDTO> mapEntityToDTO(List<Classroom> classroomList) {
         List<ClassroomDTO> classroomDTOList = new ArrayList<>();
-        for (Classroom classroom : classrooms) {
-            classroomDTOList.add(new ClassroomDTO("" + classroom.getId(), classroom.getName(), "" + classroom.getCapacity(), classroom.getLocation()));
+
+        for (Classroom classroom : classroomList) {
+            classroomDTOList.add(mapEntityToDTO(classroom));
         }
         return classroomDTOList;
     }
 
-    public List<ClassroomDTO> getAllClassroomsDTO(final boolean onlyInactive) {
-        List<Classroom> classrooms = mapResultSetToClassrooms(model.listAllClassrooms(onlyInactive));
-
-        // NOTE: will never happen because the list may be empty but not null, and it's not a bug
-        // classrooms.isEmpty() is a valid return because if there are no results for the query, the list will be empty
-        // I left the check just because in future implementations it may be necessary
-        if (classrooms == null) {
-            view.showErrorMessage("Falha ao listar salas!");
-        }
-        return convertClassroomsToDTO(classrooms);
-    }
-
-    private List<ClassroomDTO> getFilteredClassroomsDTO(final String value, final boolean onlyInactive) {
-        List<Classroom> classrooms = getFilteredClassrooms(value, onlyInactive);
-        return convertClassroomsToDTO(classrooms);
+    public IClassroomView getView() {
+        return view;
     }
 }
 

@@ -17,6 +17,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 import javax.swing.text.MaskFormatter;
+import java.awt.*;
 import java.awt.event.ActionListener;
 import java.text.ParseException;
 import java.util.List;
@@ -44,7 +45,7 @@ public class ProfessorView extends MyFrame implements IProfessorView {
     private JPanel panelMain;
     private JTextField idField;
     private JTextField nameField;
-    private JTextField filterField;
+    private JTextField searchField;
     private JFormattedTextField phoneNumberField;
     private JFormattedTextField emailField;
     private JButton insertButton;
@@ -54,12 +55,14 @@ public class ProfessorView extends MyFrame implements IProfessorView {
     private JButton reactivateButton;
     private JCheckBox inactivesCheckBox;
     private JTable professorTable;
+    private JButton searchButton;
 
 
     public ProfessorView() {
         this.setContentPane(panelMain);
         this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         this.setVisible(true);
+        professorTable.getTableHeader().setFont(new java.awt.Font("Segoe UI", Font.BOLD, 14));
     }
 
     @Override
@@ -90,8 +93,9 @@ public class ProfessorView extends MyFrame implements IProfessorView {
     public void switchButtons(final boolean b) {
         insertButton.setEnabled(!b);
         inactivesCheckBox.setEnabled(!b);
-        filterField.setEnabled(!b);
-        filterField.setEditable(!b);
+        searchButton.setEnabled(!b);
+        searchField.setEnabled(!b);
+        searchField.setEditable(!b);
         updateButton.setEnabled(b);
         deleteButton.setEnabled(b);
         doneButton.setEnabled(b);
@@ -162,8 +166,13 @@ public class ProfessorView extends MyFrame implements IProfessorView {
     }
 
     @Override
-    public void addFieldFilterActionListener(ActionListener actionListener) {
-        filterField.addActionListener(actionListener);
+    public void addSearchFieldActionListener(ActionListener actionListener) {
+        searchField.addActionListener(actionListener);
+    }
+
+    @Override
+    public void addSearchButtonActionListener(ActionListener actionListener) {
+        searchButton.addActionListener(actionListener);
     }
 
     @Override
@@ -210,7 +219,7 @@ public class ProfessorView extends MyFrame implements IProfessorView {
 
     @Override
     public String getFilterText() {
-        return filterField.getText();
+        return searchField.getText();
     }
 
     @Override
@@ -247,7 +256,7 @@ public class ProfessorView extends MyFrame implements IProfessorView {
     @Override
     public boolean confirmReactivation() {
         int deleteConfirmation = JOptionPane.showConfirmDialog(this,
-                "Tem certeza que deseja reativar esse item?",
+                "Tem certeza que deseja ativar esse item?",
                 "Confirmação de Reativação",
                 JOptionPane.YES_NO_OPTION,
                 JOptionPane.WARNING_MESSAGE

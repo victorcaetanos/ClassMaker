@@ -8,13 +8,13 @@ import java.util.List;
 
 public interface IStudentView {
 
-    void setFieldID(final String id);
+    void setFieldID(String id);
 
-    void setTableStudentModel(final List<StudentDTO> studentList);
+    void setTableStudentModel(List<StudentDTO> studentList);
 
-    void setButtonReactivate(final boolean b);
+    void setButtonReactivate(boolean b);
 
-    void setFieldTexts(final StudentDTO student);
+    void setFieldTexts(StudentDTO student);
 
     String getIdText();
 
@@ -26,7 +26,7 @@ public interface IStudentView {
 
     String getFilterText();
 
-    String getStudentIdAt(final int row);
+    String getStudentIdAt(int row);
 
     String getAddressText();
 
@@ -44,25 +44,27 @@ public interface IStudentView {
 
     void clearAllFields();
 
-    void showErrorMessage(final String message);
+    void showErrorMessage(String message);
 
-    void switchButtons(final boolean b);
+    void switchButtons(boolean b);
 
-    void addButtonInsertActionListener(final ActionListener actionListener);
+    void addButtonInsertActionListener(ActionListener actionListener);
 
-    void addButtonDeleteActionListener(final ActionListener actionListener);
+    void addButtonDeleteActionListener(ActionListener actionListener);
 
-    void addButtonUpdateActionListener(final ActionListener actionListener);
+    void addButtonUpdateActionListener(ActionListener actionListener);
 
-    void addButtonDoneActionListener(final ActionListener actionListener);
+    void addButtonDoneActionListener(ActionListener actionListener);
 
-    void addButtonReactivateActionListener(final ActionListener actionListener);
+    void addButtonReactivateActionListener(ActionListener actionListener);
 
-    void addCheckBoxInactivesActionListener(final ActionListener actionListener);
+    void addCheckBoxInactivesActionListener(ActionListener actionListener);
 
-    void addFieldFilterActionListener(final ActionListener actionListener);
+    void addFieldSearchActionListener(ActionListener actionListener);
 
-    void addTableStudentListSelectionListener(final ListSelectionListener listSelectionListener);
+    void addSearchButtonActionListener(ActionListener actionListener);
+
+    void addTableStudentListSelectionListener(ListSelectionListener listSelectionListener);
 
     int getColumnIndex(String columnName);
 }

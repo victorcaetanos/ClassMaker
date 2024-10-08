@@ -43,10 +43,10 @@ public class ValidationUtils {
     public static void validateTime(final String time) throws InvalidTimeFormattingException {
         if (time == null || time.isEmpty()) {
             throw new InvalidTimeFormattingException("Por favor informe um Horário!");
-        } else if (!time.matches("^\\d+:\\d+:\\d+$")) {
+        } else if (!time.matches("^\\d+:\\d+$")) {
             throw new InvalidTimeFormattingException("Por favor informe um Horário com apenas números!");
-        } else if (time.compareTo("23:59:59") > 0) {
-            throw new InvalidTimeFormattingException("Por favor informe um Horário menor que 24:00:00!");
+        } else if (time.compareTo("23:59") > 0) {
+            throw new InvalidTimeFormattingException("Por favor informe um Horário menor que 24:00!");
         }
     }
 

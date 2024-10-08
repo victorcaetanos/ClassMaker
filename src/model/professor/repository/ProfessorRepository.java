@@ -6,17 +6,19 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 import static model.DbConnection.getConnection;
 
-public class ProfessorRepo implements IProfessorRepo {
+public class ProfessorRepository implements IProfessorRepository {
 
-    private static final Connection con = getConnection();
+    private static Connection con = getConnection();
     private PreparedStatement ps;
 
     @Override
-    public boolean insertProfessor(final Professor professor) {
+    public boolean insertProfessor(Professor professor) {
 
         String sql = "INSERT INTO professors (name, email, phoneNumber) values (?, ?, ?);";
 
@@ -33,7 +35,7 @@ public class ProfessorRepo implements IProfessorRepo {
     }
 
     @Override
-    public boolean updateProfessor(final Professor professor) {
+    public boolean updateProfessor(Professor professor) {
 
         String sql = "UPDATE professors SET name = ?, email = ?, phoneNumber = ? WHERE id = ?";
 
@@ -51,7 +53,7 @@ public class ProfessorRepo implements IProfessorRepo {
     }
 
     @Override
-    public boolean deactivateProfessor(final int id) {
+    public boolean deactivateProfessor(int id) {
 
         String sql = "UPDATE professors SET inactive = true WHERE id = ?";
 
@@ -62,12 +64,12 @@ public class ProfessorRepo implements IProfessorRepo {
             return affectedRows > 0;
         } catch (SQLException e) {
             System.err.println("SQL Exception: " + e.getMessage());
-            throw new RuntimeException("Falha ao desativar professor", e);
+            throw new RuntimeException("Falha ao excluir professor", e);
         }
     }
 
     @Override
-    public boolean reactivateProfessor(final int id) {
+    public boolean reactivateProfessor(int id) {
 
         String sql = "UPDATE professors SET inactive = false WHERE id = ?";
 
@@ -83,7 +85,7 @@ public class ProfessorRepo implements IProfessorRepo {
     }
 
     @Override
-    public ResultSet listProfessor(final int id, final boolean onlyInactive) {
+    public Professor listProfessor(int id, boolean onlyInactive) {
 
         String sql = "SELECT id, name, email, phoneNumber FROM professors WHERE id = ? AND inactive = ?";
 
@@ -91,7 +93,12 @@ public class ProfessorRepo implements IProfessorRepo {
             ps = Objects.requireNonNull(con).prepareStatement(sql);
             ps.setInt(1, id);
             ps.setBoolean(2, onlyInactive);
-            return ps.executeQuery();
+            ResultSet rs = ps.executeQuery();
+            List<Professor> professors = mapResultSetToEntity(rs);
+            if (professors.isEmpty()) {
+                return null;
+            }
+            return professors.get(0);
         } catch (SQLException e) {
             System.err.println("SQL Exception: " + e.getMessage());
             throw new RuntimeException("Falha ao  listar professor", e);
@@ -99,11 +106,11 @@ public class ProfessorRepo implements IProfessorRepo {
     }
 
     @Override
-    public ResultSet listProfessorsByParam(final String filterValue, final boolean onlyInactive) {
+    public List<Professor> listProfessorsByParam(String filterValue, boolean onlyInactive) {
 
         String sql = """
                 SELECT id, name, email, phoneNumber FROM professors
-                WHERE (id = ?, name LIKE ?, email LIKE ?, phoneNumber LIKE ?) AND professors.inactive = ?
+                WHERE (id = ? OR name LIKE ? OR email LIKE ? OR phoneNumber LIKE ?) AND professors.inactive = ?
                 """;
 
         try {
@@ -114,7 +121,7 @@ public class ProfessorRepo implements IProfessorRepo {
             ps.setString(++cont, '%' + filterValue + '%');
             ps.setString(++cont, '%' + filterValue + '%');
             ps.setBoolean(++cont, onlyInactive);
-            return ps.executeQuery();
+            return mapResultSetToEntity(ps.executeQuery());
         } catch (SQLException e) {
             System.err.println("SQL Exception: " + e.getMessage());
             throw new RuntimeException("Falha ao filtrar professores", e);
@@ -122,17 +129,45 @@ public class ProfessorRepo implements IProfessorRepo {
     }
 
     @Override
-    public ResultSet listAllProfessors(final boolean onlyInactive) {
+    public List<Professor> listAllProfessors(boolean onlyInactive) {
 
         String sql = "SELECT id, name, email, phoneNumber FROM professors WHERE inactive = ?";
 
         try {
             ps = Objects.requireNonNull(con).prepareStatement(sql);
             ps.setBoolean(1, onlyInactive);
-            return ps.executeQuery();
+            return mapResultSetToEntity(ps.executeQuery());
         } catch (SQLException e) {
             System.err.println("SQL Exception: " + e.getMessage());
             throw new RuntimeException("Falha ao listar todos os professores", e);
         }
+    }
+
+    @Override
+    public List<Professor> listAllActiveProfessors() {
+
+        String sql = "SELECT id, name, email, phoneNumber  FROM professors WHERE inactive = false";
+
+        try {
+            ps = Objects.requireNonNull(con).prepareStatement(sql);
+            return mapResultSetToEntity(ps.executeQuery());
+        } catch (SQLException e) {
+            System.err.println("SQL Exception: " + e.getMessage());
+            throw new RuntimeException("Falha ao listar professores ativos", e);
+        }
+    }
+
+    private List<Professor> mapResultSetToEntity(ResultSet resultSet) throws SQLException {
+        List<Professor> professorList = new ArrayList<>();
+
+        while (resultSet.next()) {
+            Professor professor = new Professor();
+            professor.setId(resultSet.getInt("id"));
+            professor.setName(resultSet.getString("name"));
+            professor.setEmail(resultSet.getString("email"));
+            professor.setPhoneNumber(resultSet.getString("phoneNumber"));
+            professorList.add(professor);
+        }
+        return professorList;
     }
 }
