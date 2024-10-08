@@ -6,12 +6,14 @@ import controller.myClass.MyClassController;
 import controller.professor.ProfessorController;
 import controller.student.StudentController;
 import controller.students_class.StudentClassController;
-import model.classroom.repository.ClassroomRepo;
-import model.discipline.repository.DisciplineRepo;
-import model.myClass.repository.MyClassRepo;
-import model.professor.repository.ProfessorRepo;
-import model.student.repository.StudentRepo;
-import model.student_class.repository.StudentClassRepo;
+import model.classroom.repository.ClassroomRepository;
+import model.discipline.repository.DisciplineRepository;
+import model.myClass.repository.MyClassRepository;
+import model.professor.repository.ProfessorRepository;
+import model.student.repository.StudentRepository;
+import model.student_class.repository.StudentClassRepository;
+import service.myClass.MyClassService;
+import service.student_class.StudentClassService;
 import view.classroom.ClassroomView;
 import view.discipline.DisciplineView;
 import view.menu.IMenuView;
@@ -42,7 +44,7 @@ public class MenuController {
 
     private void setButtonProfessorListener() {
         view.addProfessorButtonActionListener(e -> {
-            ProfessorController professorController = new ProfessorController(new ProfessorView(), new ProfessorRepo());
+            ProfessorController professorController = new ProfessorController(new ProfessorView(), new ProfessorRepository());
             view.setProfessorsButtonEnabled(false);
             ((ProfessorView) professorController.getView()).addWindowListener(new WindowAdapter() {
                 @Override
@@ -55,7 +57,7 @@ public class MenuController {
 
     private void setButtonClassroomListener() {
         view.addClassroomsButtonActionListener(e -> {
-            ClassroomController classroomController = new ClassroomController(new ClassroomView(), new ClassroomRepo());
+            ClassroomController classroomController = new ClassroomController(new ClassroomView(), new ClassroomRepository());
             view.setClassroomsButtonEnabled(false);
             ((ClassroomView) classroomController.getView()).addWindowListener(new WindowAdapter() {
                 @Override
@@ -68,7 +70,15 @@ public class MenuController {
 
     private void setButtonClassListener() {
         view.addClassesButtonActionListener(e -> {
-            MyClassController classController = new MyClassController(new MyClassView(), new MyClassRepo());
+            MyClassController classController = new MyClassController(
+                    new MyClassView(),
+                    new MyClassService(
+                            new MyClassRepository(),
+                            new ProfessorRepository(),
+                            new DisciplineRepository(),
+                            new ClassroomRepository()
+                    )
+            );
             view.setClassesButtonEnabled(false);
             ((MyClassView) classController.getView()).addWindowListener(new WindowAdapter() {
                 @Override
@@ -81,7 +91,7 @@ public class MenuController {
 
     private void setButtonDisciplineListener() {
         view.addDisciplinesButtonActionListener(e -> {
-            DisciplineController disciplineController = new DisciplineController(new DisciplineView(), new DisciplineRepo());
+            DisciplineController disciplineController = new DisciplineController(new DisciplineView(), new DisciplineRepository());
             view.setDisciplinesButtonEnabled(false);
             ((DisciplineView) disciplineController.getView()).addWindowListener(new WindowAdapter() {
                 @Override
@@ -94,7 +104,7 @@ public class MenuController {
 
     private void setButtonStudentsListener() {
         view.addStudentsButtonActionListener(e -> {
-            StudentController studentController = new StudentController(new StudentView(), new StudentRepo());
+            StudentController studentController = new StudentController(new StudentView(), new StudentRepository());
             view.setStudentsButtonEnabled(false);
             ((StudentView) studentController.getView()).addWindowListener(new WindowAdapter() {
                 @Override
@@ -107,7 +117,14 @@ public class MenuController {
 
     private void setButtonStudentsClassesListener() {
         view.addStudentsClassesButtonActionListener(e -> {
-            StudentClassController studentClassController = new StudentClassController(new StudentClassView(), new StudentClassRepo());
+            StudentClassController studentClassController = new StudentClassController(
+                    new StudentClassView(),
+                    new StudentClassService(
+                            new StudentClassRepository(),
+                            new StudentRepository(),
+                            new MyClassRepository()
+                    )
+            );
             view.setStudentsClassesButtonEnabled(false);
             ((StudentClassView) studentClassController.getView()).addWindowListener(new WindowAdapter() {
                 @Override
