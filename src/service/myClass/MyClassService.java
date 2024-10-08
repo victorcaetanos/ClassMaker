@@ -33,38 +33,6 @@ public class MyClassService implements IMyClassService {
         this.classroomRepo = classroomRepo;
     }
 
-    public IMyClassRepository getMyClassRepo() {
-        return myClassRepo;
-    }
-
-    public void setMyClassRepo(IMyClassRepository myClassRepo) {
-        this.myClassRepo = myClassRepo;
-    }
-
-    public IProfessorRepository getProfessorRepo() {
-        return professorRepo;
-    }
-
-    public void setProfessorRepo(IProfessorRepository professorRepo) {
-        this.professorRepo = professorRepo;
-    }
-
-    public IDisciplineRepository getDisciplineRepo() {
-        return disciplineRepo;
-    }
-
-    public void setDisciplineRepo(IDisciplineRepository disciplineRepo) {
-        this.disciplineRepo = disciplineRepo;
-    }
-
-    public IClassroomRepository getClassroomRepo() {
-        return classroomRepo;
-    }
-
-    public void setClassroomRepo(IClassroomRepository classroomRepo) {
-        this.classroomRepo = classroomRepo;
-    }
-
     @Override
     public boolean insertMyClass(String professorId, String disciplineId, String classroomId, String startTime, String finishTime, String semester) throws ValidationException {
         int parsedProfessorId = ParseUtils.parseId(professorId);

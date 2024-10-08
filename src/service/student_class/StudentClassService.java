@@ -14,9 +14,9 @@ import utils.Validation.ValidationUtils;
 import java.util.List;
 
 public class StudentClassService implements IStudentClassService {
-    IStudentClassRepository studentClassRepo;
-    IStudentRepository studentRepo;
-    IMyClassRepository myClassRepo;
+    private IStudentClassRepository studentClassRepo;
+    private IStudentRepository studentRepo;
+    private IMyClassRepository myClassRepo;
 
     public StudentClassService(
             IStudentClassRepository studentClassRepo,
@@ -26,30 +26,6 @@ public class StudentClassService implements IStudentClassService {
         this.studentClassRepo = studentClassRepo;
         this.myClassRepo = myClassRepo;
         this.studentRepo = studentRepo;
-    }
-
-    public IStudentClassRepository getStudentClassRepo() {
-        return studentClassRepo;
-    }
-
-    public void setStudentClassRepo(IStudentClassRepository studentClassRepo) {
-        this.studentClassRepo = studentClassRepo;
-    }
-
-    public IStudentRepository getStudentRepo() {
-        return studentRepo;
-    }
-
-    public void setStudentRepo(IStudentRepository studentRepo) {
-        this.studentRepo = studentRepo;
-    }
-
-    public IMyClassRepository getMyClassRepo() {
-        return myClassRepo;
-    }
-
-    public void setMyClassRepo(IMyClassRepository myClassRepo) {
-        this.myClassRepo = myClassRepo;
     }
 
     @Override

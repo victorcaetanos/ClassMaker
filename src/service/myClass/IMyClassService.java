@@ -1,8 +1,6 @@
 package service.myClass;
 
 import exceptions.ValidationException;
-import exceptions.formatting.InvalidIdFormattingException;
-import exceptions.parsing.InvalidIdException;
 import model.classroom.entity.Classroom;
 import model.discipline.entity.Discipline;
 import model.myClass.entity.MyClass;
@@ -18,7 +16,7 @@ public interface IMyClassService {
     boolean updateMyClass(String myClassId, String professorId, String disciplineId, String classroomId,
                           String startTime, String finishTime, String semester) throws ValidationException;
 
-    boolean deleteMyClass(String myclassId) throws InvalidIdFormattingException, InvalidIdException, ValidationException;
+    boolean deleteMyClass(String myclassId) throws ValidationException;
 
     boolean activateMyClass(String myclassId) throws ValidationException;
 
