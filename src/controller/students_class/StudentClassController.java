@@ -9,12 +9,8 @@ import model.student.entity.Student;
 import model.student_class.entity.StudentClass;
 import model.student_class.dto.StudentClassDTO;
 import service.student_class.IStudentClassService;
-import utils.ParseUtils;
-import utils.Validation.ValidationUtils;
 import view.student_class.IStudentClassView;
 
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 import java.util.ArrayList;
 import java.util.List;
 
