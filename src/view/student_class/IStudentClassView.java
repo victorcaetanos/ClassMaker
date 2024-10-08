@@ -10,19 +10,19 @@ import java.util.List;
 
 public interface IStudentClassView {
 
-    void setTableMyClassModel(final List<MyClassDTO> myClassList);
+    void setTableMyClassModel(List<MyClassDTO> myClassList);
 
-    void setTableStudentModel(final List<StudentDTO> studentList);
+    void setTableStudentModel(List<StudentDTO> studentList);
 
-    void setTableStudentClassModel(final List<StudentClassDTO> studentClassList);
+    void setTableStudentMyClassModel(List<StudentClassDTO> studentClassList);
 
-    String getMyClassIdAt(final int row);
+    String getMyClassIdAt(int row);
 
-    String getStudentIdAt(final int row);
+    String getStudentIdAt(int row);
 
-    List<String> getStudentClassIdsAt(final int row);
+    List<String> getStudentClassIdsAt(int row);
 
-    void setButtonReactivate(final boolean b);
+    void setButtonReactivate(boolean b);
 
     String getMyClassSearchFieldText();
 
@@ -42,33 +42,39 @@ public interface IStudentClassView {
 
     boolean confirmReactivation();
 
-    void showErrorMessage(final String message);
+    void showErrorMessage(String message);
 
-    void setEnableFirstTableButtons(final boolean b);
+    void setEnableFirstTableButtons(boolean b);
 
-    void setEnableSecondTableButtons(final boolean b);
+    void setEnableSecondTableButtons(boolean b);
 
-    void setEnableThirdTableButtons(final boolean b);
+    void setEnableThirdTableButtons(boolean b);
 
-    void addInsertButtonActionListener(final ActionListener actionListener);
+    void addInsertButtonActionListener(ActionListener actionListener);
 
-    void addDeleteButtonActionListener(final ActionListener actionListener);
+    void addDeleteButtonActionListener(ActionListener actionListener);
 
-    void addReactivateButtonActionListener(final ActionListener actionListener);
+    void addReactivateButtonActionListener(ActionListener actionListener);
 
-    void addCheckBoxInactivesActionListener(final ActionListener actionListener);
+    void addCheckBoxInactivesActionListener(ActionListener actionListener);
 
-    void addMyClassSearchFieldActionListener(final ActionListener actionListener);
+    void addMyClassSearchFieldActionListener(ActionListener actionListener);
 
-    void addStudentSearchFieldActionListener(final ActionListener actionListener);
+    void addStudentSearchFieldActionListener(ActionListener actionListener);
 
-    void addStudentClassSearchFieldActionListener(final ActionListener actionListener);
+    void addStudentClassSearchFieldActionListener(ActionListener actionListener);
 
-    void addTableMyClassListSelectionListener(final ListSelectionListener listSelectionListener);
+    void addMyClassSearchButtonActionListener(ActionListener actionListener);
 
-    void addTableStudentListSelectionListener(final ListSelectionListener listSelectionListener);
+    void addStudentSearchButtonActionListener(ActionListener actionListener);
 
-    void addTableStudentClassListSelectionListener(final ListSelectionListener listSelectionListener);
+    void addStudentClassSearchButtonActionListener(ActionListener actionListener);
+
+    void addTableMyClassListSelectionListener(ListSelectionListener listSelectionListener);
+
+    void addTableStudentListSelectionListener(ListSelectionListener listSelectionListener);
+
+    void addTableStudentClassListSelectionListener(ListSelectionListener listSelectionListener);
 
     int getColumnIndex(Class<?> aClass, String columnName);
 }

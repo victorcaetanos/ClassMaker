@@ -1,28 +1,30 @@
 package controller.students_class;
 
 import exceptions.ValidationException;
+import exceptions.sql.DuplicateKeyEntryException;
 import model.myClass.dto.MyClassDTO;
+import model.myClass.entity.MyClass;
 import model.student.dto.StudentDTO;
-import model.student_class.repository.IStudentClassRepo;
+import model.student.entity.Student;
 import model.student_class.entity.StudentClass;
 import model.student_class.dto.StudentClassDTO;
+import service.student_class.IStudentClassService;
 import utils.ParseUtils;
-import utils.Validation.StudentClassValidation;
 import utils.Validation.ValidationUtils;
 import view.student_class.IStudentClassView;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.util.ArrayList;
 import java.util.List;
 
 public class StudentClassController {
     private final IStudentClassView view;
-    private final IStudentClassRepo model;
+    private final IStudentClassService service;
 
-    public StudentClassController(IStudentClassView view, IStudentClassRepo model) {
+    public StudentClassController(IStudentClassView view, IStudentClassService service) {
         this.view = view;
-        this.model = model;
+        this.service = service;
         initComponents();
     }
 
@@ -40,6 +42,10 @@ public class StudentClassController {
         addStudentSearchFieldListener();
         addStudentClassSearchFieldListener();
 
+        addMyClassSearchButtonListener();
+        addStudentSearchButtonListener();
+        addStudentMyClassSearchButtonListener();
+
         view.setTableMyClassModel(getAllMyClassesDTO());
         view.setTableStudentModel(getAllStudentsDTO());
     }
@@ -49,23 +55,17 @@ public class StudentClassController {
             String idStudent = view.getStudentIdAt(view.getSelectedStudentRowIndex());
             String idClass = view.getMyClassIdAt(view.getSelectedMyClassRowIndex());
 
-            int parsedIdStudent;
-            int parsedIdClass;
             try {
-                parsedIdStudent = ParseUtils.parseId(idStudent);
-                parsedIdClass = ParseUtils.parseId(idClass);
-                StudentClassValidation.validateStudentClassFields(parsedIdStudent, parsedIdClass);
-            } catch (ValidationException error) {
+                if (!service.insertStudentClass(idStudent, idClass)) {
+                    view.showErrorMessage("Falha ao inserir aluno em turma!");
+                    return;
+                }
+            } catch (ValidationException | DuplicateKeyEntryException error) {
                 view.showErrorMessage(error.getMessage());
                 return;
             }
 
-            StudentClass studentClass = new StudentClass(parsedIdStudent, parsedIdClass);
-            if (!model.insertStudentClass(studentClass)) {
-                view.showErrorMessage("Falha ao inserir aluno em turma!");
-                return;
-            }
-            view.setTableStudentClassModel(getAllStudentMyClassesDTO( ));
+            view.setTableStudentMyClassModel(getAllStudentMyClassesDTO());
         });
     }
 
@@ -76,25 +76,19 @@ public class StudentClassController {
             }
 
             List<String> ids = view.getStudentClassIdsAt(view.getSelectedStudentClassRowIndex());
-            int parsedIdStudent;
-            int parsedIdClass;
+
             try {
-                parsedIdStudent = ParseUtils.parseId(ids.get(0));
-                parsedIdClass = ParseUtils.parseId(ids.get(1));
-                StudentClassValidation.validateStudentClassFields(parsedIdStudent, parsedIdClass);
+                if (!service.deleteStudentClass(ids.get(0), ids.get(1))) {
+                    view.showErrorMessage("Falha ao excluir aluno em turma!");
+                    return;
+                }
             } catch (ValidationException error) {
                 view.showErrorMessage(error.getMessage());
                 return;
             }
 
-            StudentClass studentClass = new StudentClass(parsedIdStudent, parsedIdClass);
-            if (!model.deactivateStudentClass(studentClass)) {
-                view.showErrorMessage("Falha ao desativar aluno em turma!");
-                return;
-            }
-
             view.setEnableThirdTableButtons(false);
-            view.setTableStudentClassModel(getAllStudentMyClassesDTO( ));
+            view.setTableStudentMyClassModel(getAllStudentMyClassesDTO());
         });
     }
 
@@ -105,25 +99,19 @@ public class StudentClassController {
             }
 
             List<String> ids = view.getStudentClassIdsAt(view.getSelectedStudentClassRowIndex());
-            int parsedIdStudent;
-            int parsedIdClass;
+
             try {
-                parsedIdStudent = ParseUtils.parseId(ids.get(0));
-                parsedIdClass = ParseUtils.parseId(ids.get(1));
-                StudentClassValidation.validateStudentClassFields(parsedIdStudent, parsedIdClass);
+                if (!service.activateStudentClass(ids.get(0), ids.get(1))) {
+                    view.showErrorMessage("Falha ao ativar aluno em turma!");
+                    return;
+                }
             } catch (ValidationException error) {
                 view.showErrorMessage(error.getMessage());
                 return;
             }
 
-            StudentClass studentClass = new StudentClass(parsedIdStudent, parsedIdClass);
-            if (!model.reactivateStudentClass(studentClass)) {
-                view.showErrorMessage("Falha ao reactivar aluno em turma!");
-                return;
-            }
-
             view.setEnableThirdTableButtons(false);
-            view.setTableStudentClassModel(getAllStudentMyClassesDTO());
+            view.setTableStudentMyClassModel(getAllStudentMyClassesDTO());
         });
     }
 
@@ -133,7 +121,7 @@ public class StudentClassController {
                 int selectedRow = view.getSelectedMyClassRowIndex();
                 if (selectedRow >= 0) {
                     view.setEnableFirstTableButtons(true);
-                    view.setTableStudentClassModel(getAllStudentMyClassesDTO( ));
+                    view.setTableStudentMyClassModel(getAllStudentMyClassesDTO());
                 }
             }
         });
@@ -165,94 +153,78 @@ public class StudentClassController {
         return view;
     }
 
-
-    // methods to populate JTables
     private List<MyClassDTO> getAllMyClassesDTO() {
-        return mapResultSetToMyClassesDTO(model.listAllActiveMyClasses(view.getMyClassSearchFieldText()));
+        return mapEntitySetToMyClassesDTO(service.listAllActiveMyClasses(view.getMyClassSearchFieldText()));
     }
 
-    private List<MyClassDTO> mapResultSetToMyClassesDTO(ResultSet resultSet) {
-        List<MyClassDTO> myClassList = new ArrayList<>();
-        try {
-            while (resultSet.next()) {
-                MyClassDTO myClass = new MyClassDTO();
-                myClass.setId(resultSet.getString(1));
-                myClass.setProfessorName(resultSet.getString(2));
-                myClass.setDisciplineName(resultSet.getString(3));
-                myClass.setClassroomName(resultSet.getString(4));
-                myClass.setSemester(resultSet.getString(5));
-                myClassList.add(myClass);
-            }
-        } catch (SQLException e) {
-            view.showErrorMessage("Falha ao mapear turmas!");
+    private List<MyClassDTO> mapEntitySetToMyClassesDTO(List<MyClass> myClassList) {
+        List<MyClassDTO> myClassListDTOList = new ArrayList<>();
+
+        for (MyClass myClass : myClassList) {
+            MyClassDTO myClassDTO = new MyClassDTO();
+            myClassDTO.setId(myClass.getId() + "");
+            myClassDTO.setProfessorName(myClass.getProfessor().getName());
+            myClassDTO.setDisciplineName(myClass.getDiscipline().getName());
+            myClassDTO.setClassroomName(myClass.getClassroom().getName());
+            myClassDTO.setSemester(myClass.getSemester());
+            myClassListDTOList.add(myClassDTO);
         }
-        return myClassList;
+        return myClassListDTOList;
     }
 
     private List<StudentDTO> getAllStudentsDTO() {
-        return mapResultSetToStudentsDTO(model.listAllActiveStudents(view.getStudentSearchFieldText()));
+        return mapEntityToStudentsDTO(service.listAllActiveStudents(view.getStudentSearchFieldText()));
     }
 
-    private List<StudentDTO> mapResultSetToStudentsDTO(ResultSet resultSet) {
-        List<StudentDTO> studentList = new ArrayList<>();
-        try {
-            while (resultSet.next()) {
-                StudentDTO myClass = new StudentDTO();
-                myClass.setId(resultSet.getString(1));
-                myClass.setName(resultSet.getString(2));
-                myClass.setEmail(resultSet.getString(3));
-                myClass.setPhoneNumber(resultSet.getString(4));
-                studentList.add(myClass);
-            }
-        } catch (SQLException e) {
-            view.showErrorMessage("Falha ao mapear alunos!");
+    private List<StudentDTO> mapEntityToStudentsDTO(List<Student> studentList) {
+        List<StudentDTO> studentDTOList = new ArrayList<>();
+
+        for (Student student : studentList) {
+            StudentDTO studentDTO = new StudentDTO();
+            studentDTO.setId(student.getId() + "");
+            studentDTO.setName(student.getName());
+            studentDTO.setCpf(student.getCpf());
+            studentDTO.setEmail(student.getEmail());
+            studentDTO.setPhoneNumber(student.getPhoneNumber());
+            studentDTO.setAddress(student.getAddress());
+            studentDTOList.add(studentDTO);
         }
-        return studentList;
+        return studentDTOList;
     }
 
     private List<StudentClassDTO> getAllStudentMyClassesDTO() {
-        int parsedID;
+        List<StudentClassDTO> studentClass;
 
         try {
-            parsedID = ParseUtils.parseId(view.getMyClassIdAt(view.getSelectedMyClassRowIndex()));
-            ValidationUtils.validateId(parsedID);
+            studentClass = mapEntityToStudentClassDTO(
+                    service.listStudentClass(
+                            view.getMyClassIdAt(view.getSelectedMyClassRowIndex()),
+                            view.getStudentClassSearchFieldText(),
+                            view.isCheckBoxInactivesSelected()
+                    )
+            );
         } catch (ValidationException error) {
             view.showErrorMessage(error.getMessage());
-            return null;
-        }
-
-        List<StudentClassDTO> studentClass = mapResultSetToStudentClassDTO(
-                model.listStudentClass(
-                        parsedID,
-                        view.getStudentClassSearchFieldText(),
-                        view.isCheckBoxInactivesSelected()
-                )
-        );
-        if (studentClass == null) {
-            view.showErrorMessage("Falha ao listar alunos da turma selecionada!");
             return null;
         }
         return studentClass;
     }
 
-    private List<StudentClassDTO> mapResultSetToStudentClassDTO(ResultSet rs) {
-        List<StudentClassDTO> studentClassList = new ArrayList<>();
-        try {
-            while (rs.next()) {
-                StudentClassDTO studentClass = new StudentClassDTO();
-                studentClass.setDisciplineCode(rs.getString(1));
-                studentClass.setDisciplineName(rs.getString(2));
-                studentClass.setClassSemester(rs.getString(3));
-                studentClass.setStudentName(rs.getString(4));
-                studentClass.setStudentEmail(rs.getString(5));
-                studentClass.setStudentId(rs.getString(6));
-                studentClass.setClassId(rs.getString(7));
-                studentClassList.add(studentClass);
-            }
-        } catch (SQLException e) {
-            view.showErrorMessage("Falha ao mapear alunos da turma selecionada!");
+    private List<StudentClassDTO> mapEntityToStudentClassDTO(List<StudentClass> studentClassList) {
+        List<StudentClassDTO> studentClassDTOList = new ArrayList<>();
+
+        for (StudentClass studentClass : studentClassList) {
+            StudentClassDTO studentClassDTO = new StudentClassDTO();
+            studentClassDTO.setDisciplineCode(studentClass.getMyClass().getDiscipline().getCode());
+            studentClassDTO.setDisciplineName(studentClass.getMyClass().getDiscipline().getName());
+            studentClassDTO.setClassSemester(studentClass.getMyClass().getSemester());
+            studentClassDTO.setStudentName(studentClass.getStudent().getName());
+            studentClassDTO.setStudentEmail(studentClass.getStudent().getEmail());
+            studentClassDTO.setStudentId(studentClass.getStudent().getId() + "");
+            studentClassDTO.setClassId(studentClass.getMyClass().getId() + "");
+            studentClassDTOList.add(studentClassDTO);
         }
-        return studentClassList;
+        return studentClassDTOList;
     }
 
     // Methods to filter JTables
@@ -266,11 +238,23 @@ public class StudentClassController {
     }
 
     private void addStudentClassSearchFieldListener() {
-        view.addStudentClassSearchFieldActionListener(e -> view.setTableStudentClassModel(getAllStudentMyClassesDTO()));
+        view.addStudentClassSearchFieldActionListener(e -> view.setTableStudentMyClassModel(getAllStudentMyClassesDTO()));
     }
 
     private void addInactivesCheckBoxListener() {
-        view.addCheckBoxInactivesActionListener(e -> view.setTableStudentClassModel(getAllStudentMyClassesDTO()));
+        view.addCheckBoxInactivesActionListener(e -> view.setTableStudentMyClassModel(getAllStudentMyClassesDTO()));
+    }
+
+    private void addMyClassSearchButtonListener() {
+        view.addMyClassSearchButtonActionListener(e -> view.setTableMyClassModel(getAllMyClassesDTO()));
+    }
+
+    private void addStudentSearchButtonListener() {
+        view.addStudentSearchButtonActionListener(e -> view.setTableStudentModel(getAllStudentsDTO()));
+    }
+
+    private void addStudentMyClassSearchButtonListener() {
+        view.addStudentClassSearchButtonActionListener(e -> view.setTableStudentMyClassModel(getAllStudentMyClassesDTO()));
     }
 }
 
