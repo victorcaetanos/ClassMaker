@@ -8,13 +8,13 @@ public class MyClassValidation {
             if (id != null) {
                 ValidationUtils.validateId(id);
             }
-            if (id != null) {
+            if (professorId != null) {
                 ValidationUtils.validateId(professorId);
             }
-            if (id != null) {
+            if (disciplineId != null) {
                 ValidationUtils.validateId(disciplineId);
             }
-            if (id != null) {
+            if (classroomId != null) {
                 ValidationUtils.validateId(classroomId);
             }
             if (startTime != null) {

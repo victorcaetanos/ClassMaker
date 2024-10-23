@@ -54,7 +54,7 @@ public class ValidationUtils {
         if (semester == null || semester.isEmpty()) {
             throw new InvalidSemesterFormattingException("Por favor informe um Semestre!");
         } else if (!semester.matches("^\\d{4}/(01|02)$")) {
-            throw new InvalidSemesterFormattingException("Por favor informe um Semestre com apenas números!");
+            throw new InvalidSemesterFormattingException("Por favor informe um Semestre com apenas números! Ex:'2024/01'");
         }
     }
 
