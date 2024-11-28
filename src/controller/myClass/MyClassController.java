@@ -44,13 +44,14 @@ public class MyClassController {
             String professorId = view.getComboBoxProfessorId();
             String disciplineId = view.getComboBoxDisciplineId();
             String classroomId = view.getComboBoxClassroomId();
+            String weekDay = view.getWeekDayText();
             String startTime = view.getStartTimeText();
             String finishTime = view.getFinishTimeText();
             String semester = view.getSemesterText();
 
             try {
 
-                if (!service.insertMyClass(professorId, disciplineId, classroomId, startTime, finishTime, semester)) {
+                if (!service.insertMyClass(professorId, disciplineId, classroomId,weekDay, startTime, finishTime, semester)) {
                     view.showErrorMessage("Falha ao inserir turma!");
                     return;
                 }
@@ -70,12 +71,13 @@ public class MyClassController {
             String professorId = view.getComboBoxProfessorId();
             String disciplineId = view.getComboBoxDisciplineId();
             String classroomId = view.getComboBoxClassroomId();
+            String weekDay = view.getWeekDayText();
             String startTime = view.getStartTimeText();
             String finishTime = view.getFinishTimeText();
             String semester = view.getSemesterText();
 
             try {
-                if (!service.updateMyClass(myClassId, professorId, disciplineId, classroomId, startTime, finishTime, semester)) {
+                if (!service.updateMyClass(myClassId, professorId, disciplineId, classroomId,weekDay, startTime, finishTime, semester)) {
                     view.showErrorMessage("Falha ao atualizar turma!");
                     return;
                 }
@@ -255,6 +257,7 @@ public class MyClassController {
         myClassDTO.setDisciplineId(myClass.getDiscipline().getId() + "");
         myClassDTO.setClassroomName(myClass.getClassroom().getName());
         myClassDTO.setClassroomId(myClass.getClassroom().getId() + "");
+        myClassDTO.setWeekDay(myClass.getWeeDay());
         myClassDTO.setStartTime(myClass.getStartTime());
         myClassDTO.setFinishTime(myClass.getFinishTime());
         myClassDTO.setSemester(myClass.getSemester());

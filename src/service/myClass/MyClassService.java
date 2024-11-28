@@ -34,11 +34,11 @@ public class MyClassService implements IMyClassService {
     }
 
     @Override
-    public boolean insertMyClass(String professorId, String disciplineId, String classroomId, String startTime, String finishTime, String semester) throws ValidationException {
+    public boolean insertMyClass(String professorId, String disciplineId, String classroomId,String weekDay,  String startTime, String finishTime, String semester) throws ValidationException {
         int parsedProfessorId = ParseUtils.parseId(professorId);
         int parsedDisciplineId = ParseUtils.parseId(disciplineId);
         int parsedClassroomId = ParseUtils.parseId(classroomId);
-        MyClassValidation.validateMyClassFields(null, parsedProfessorId, parsedDisciplineId, parsedClassroomId, startTime, finishTime, semester);
+        MyClassValidation.validateMyClassFields(null, parsedProfessorId, parsedDisciplineId, parsedClassroomId,weekDay,  startTime, finishTime, semester);
 
         Professor professor = new Professor(parsedProfessorId);
         Discipline discipline = new Discipline(parsedDisciplineId);
@@ -46,19 +46,19 @@ public class MyClassService implements IMyClassService {
         return myClassRepo.insertMyClass(
                 new MyClass(
                         professor, discipline, classroom,
-                        startTime, finishTime, semester
+                        weekDay,  startTime, finishTime, semester
                 )
         );
     }
 
 
     @Override
-    public boolean updateMyClass(String myClassId, String professorId, String disciplineId, String classroomId, String startTime, String finishTime, String semester) throws ValidationException {
+    public boolean updateMyClass(String myClassId, String professorId, String disciplineId, String classroomId, String weekDay, String startTime, String finishTime, String semester) throws ValidationException {
         int parsedMyClassId = ParseUtils.parseId(myClassId);
         int parsedProfessorId = ParseUtils.parseId(professorId);
         int parsedDisciplineId = ParseUtils.parseId(disciplineId);
         int parsedClassroomId = ParseUtils.parseId(classroomId);
-        MyClassValidation.validateMyClassFields(parsedMyClassId, parsedProfessorId, parsedDisciplineId, parsedClassroomId, startTime, finishTime, semester);
+        MyClassValidation.validateMyClassFields(parsedMyClassId, parsedProfessorId, parsedDisciplineId, parsedClassroomId, weekDay, startTime, finishTime, semester);
 
         Professor professor = new Professor(parsedProfessorId);
         Discipline discipline = new Discipline(parsedDisciplineId);
@@ -66,7 +66,7 @@ public class MyClassService implements IMyClassService {
         return myClassRepo.updateMyClass(
                 new MyClass(
                         parsedMyClassId, professor, discipline, classroom,
-                        startTime, finishTime, semester
+                        weekDay, startTime, finishTime, semester
                 )
         );
     }

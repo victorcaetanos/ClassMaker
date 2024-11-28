@@ -39,18 +39,22 @@ public class ProfessorController {
         view.addButtonInsertActionListener(e -> {
             String name = view.getNameText();
             String phoneNumber = view.getPhoneNumberText();
+            String cpf = view.getCpfText();
+            String title = view.getTitleText();
             String email = view.getEmailText();
 
             String parsedPhoneN;
+            String parsedCpf;
             try {
                 parsedPhoneN = ParseUtils.parsePhoneNumber(phoneNumber);
-                ProfessorValidation.validateProfessorFields(null, name, email, parsedPhoneN);
+                parsedCpf = ParseUtils.parseCpf(cpf);
+                ProfessorValidation.validateProfessorFields(null, name, email, parsedPhoneN,parsedCpf,title);
             } catch (ValidationException error) {
                 view.showErrorMessage(error.getMessage());
                 return;
             }
 
-            Professor professor = new Professor(name, email, parsedPhoneN);
+            Professor professor = new Professor(name, email, parsedPhoneN, parsedCpf,title);
             if (!repository.insertProfessor(professor)) {
                 view.showErrorMessage("Falha ao inserir professor!");
                 return;
@@ -66,20 +70,24 @@ public class ProfessorController {
             String id = view.getIdText();
             String name = view.getNameText();
             String phoneNumber = view.getPhoneNumberText();
+            String cpf = view.getCpfText();
+            String title = view.getTitleText();
             String email = view.getEmailText();
 
             int parsedID;
             String parsedPhoneN;
+            String parsedCpf;
             try {
                 parsedID = ParseUtils.parseId(id);
                 parsedPhoneN = ParseUtils.parsePhoneNumber(phoneNumber);
-                ProfessorValidation.validateProfessorFields(parsedID, name, email, parsedPhoneN);
+                parsedCpf = ParseUtils.parseCpf(cpf);
+                ProfessorValidation.validateProfessorFields(parsedID, name, email, parsedPhoneN,parsedCpf, title);
             } catch (ValidationException error) {
                 view.showErrorMessage(error.getMessage());
                 return;
             }
 
-            Professor professor = new Professor(parsedID, name, email, parsedPhoneN);
+            Professor professor = new Professor(parsedID, name, email, parsedPhoneN, parsedCpf, title);
             if (!repository.updateProfessor(professor)) {
                 view.showErrorMessage("Falha ao atualizar professor!");
                 return;
@@ -101,7 +109,7 @@ public class ProfessorController {
             int parsedID;
             try {
                 parsedID = ParseUtils.parseId(id);
-                ProfessorValidation.validateProfessorFields(parsedID, null, null, null);
+                ProfessorValidation.validateProfessorFields(parsedID, null, null, null, null, null);
             } catch (ValidationException error) {
                 view.showErrorMessage(error.getMessage());
                 return;
@@ -129,7 +137,7 @@ public class ProfessorController {
             int parsedID;
             try {
                 parsedID = ParseUtils.parseId(id);
-                ProfessorValidation.validateProfessorFields(parsedID, null, null, null);
+                ProfessorValidation.validateProfessorFields(parsedID, null, null, null, null, null);
             } catch (ValidationException error) {
                 view.showErrorMessage(error.getMessage());
                 return;
@@ -236,6 +244,8 @@ public class ProfessorController {
         professorDTO.setName(professor.getName());
         professorDTO.setEmail(professor.getEmail());
         professorDTO.setPhoneNumber(professor.getPhoneNumber());
+        professorDTO.setCpf(professor.getCpf());
+        professorDTO.setTitle(professor.getTitle());
         return professorDTO;
     }
 

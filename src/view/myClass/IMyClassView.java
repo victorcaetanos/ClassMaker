@@ -24,6 +24,7 @@ public interface IMyClassView {
     String getStartTimeText();
 
     String getSemesterText();
+    String getWeekDayText();
 
     String getFinishTimeText();
 

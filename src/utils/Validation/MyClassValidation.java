@@ -3,7 +3,9 @@ package utils.Validation;
 import exceptions.ValidationException;
 
 public class MyClassValidation {
-    public static void validateMyClassFields(Integer id, Integer professorId, Integer disciplineId, Integer classroomId, String startTime, String finishTime, String semester) throws ValidationException {
+    public static void validateMyClassFields(Integer id, Integer professorId, Integer disciplineId, Integer classroomId, String weekDay, String startTime, String finishTime, String semester) throws ValidationException {
+        final String WEEKDAY = "Dia da semana";
+
         try {
             if (id != null) {
                 ValidationUtils.validateId(id);
@@ -16,6 +18,9 @@ public class MyClassValidation {
             }
             if (classroomId != null) {
                 ValidationUtils.validateId(classroomId);
+            }
+            if (weekDay != null) {
+                ValidationUtils.validateWeekDay(weekDay);
             }
             if (startTime != null) {
                 ValidationUtils.validateTime(startTime);

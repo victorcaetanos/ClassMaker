@@ -1,6 +1,7 @@
 package view.professor;
 
 import model.professor.dto.ProfessorDTO;
+import utils.renderers.CpfCellRenderer;
 import utils.renderers.PhoneNumberCellRenderer;
 import view.MyFrame;
 
@@ -23,6 +24,7 @@ import java.text.ParseException;
 import java.util.List;
 import java.util.Vector;
 
+import static utils.renderers.CpfCellRenderer.formatCpf;
 import static utils.renderers.PhoneNumberCellRenderer.formatPhoneNumber;
 
 
@@ -30,7 +32,8 @@ public class ProfessorView extends MyFrame implements IProfessorView {
 
     private final String ID = "ID";
     private final String PHONE_NUMBER = "Telefone";
-    private final Vector<String> tableColumnNames = new Vector<>(List.of(ID, "Nome", "Email", PHONE_NUMBER));
+    private final String CPF = "Cpf";
+    private final Vector<String> tableColumnNames = new Vector<>(List.of(ID, "Nome", "Email", PHONE_NUMBER, CPF, "Título"));
     private JLabel titleLabel;
     private JLabel idLabel;
     private JLabel nameLabel;
@@ -56,6 +59,10 @@ public class ProfessorView extends MyFrame implements IProfessorView {
     private JCheckBox inactivesCheckBox;
     private JTable professorTable;
     private JButton searchButton;
+    private JFormattedTextField cpfField;
+    private JLabel cpfLabel;
+    private JFormattedTextField title1Field;
+    private JLabel title1Label;
 
 
     public ProfessorView() {
@@ -77,6 +84,8 @@ public class ProfessorView extends MyFrame implements IProfessorView {
                 rowVector.add(professor.getName());
                 rowVector.add(professor.getEmail());
                 rowVector.add(professor.getPhoneNumber());
+                rowVector.add(professor.getCpf());
+                rowVector.add(professor.getTitle());
                 dataVector.add(rowVector);
             }
         }
@@ -111,6 +120,8 @@ public class ProfessorView extends MyFrame implements IProfessorView {
         nameField.setText(professor.getName());
         emailField.setText(professor.getEmail());
         phoneNumberField.setText(formatPhoneNumber(professor.getPhoneNumber()));
+        cpfField.setText(formatCpf(professor.getCpf()));
+        title1Field.setText(professor.getTitle());
     }
 
     @Override
@@ -119,6 +130,8 @@ public class ProfessorView extends MyFrame implements IProfessorView {
         phoneNumberField.setText("");
         emailField.setText("");
         idField.setText("");
+        cpfField.setText("");
+        title1Field.setText("");
     }
 
     private void createUIComponents() {
@@ -133,6 +146,16 @@ public class ProfessorView extends MyFrame implements IProfessorView {
             showErrorMessage("Um telefone pode não estar bem formatado!");
         }
         phoneNumberField = new JFormattedTextField(phoneNumberFormatter);
+        MaskFormatter cpfFormatter = null;
+        String pattern1 = "###.###.###-##";
+        try {
+            cpfFormatter = new MaskFormatter(pattern1);
+            cpfFormatter.setPlaceholderCharacter(placeholder);
+        } catch (ParseException e) {
+            System.err.println("ParseException: " + e.getMessage());
+            showErrorMessage("Um cpf pode não estar bem formatado!");
+        }
+        cpfField = new JFormattedTextField(cpfFormatter);
     }
 
     @Override
@@ -190,6 +213,7 @@ public class ProfessorView extends MyFrame implements IProfessorView {
 
         professorTable.setModel(buildTableModel(professorList));
         professorTable.getColumnModel().getColumn(getColumnIndex(PHONE_NUMBER)).setCellRenderer(new PhoneNumberCellRenderer());
+        professorTable.getColumnModel().getColumn(getColumnIndex(CPF)).setCellRenderer(new CpfCellRenderer());
     }
 
     @Override
@@ -210,6 +234,15 @@ public class ProfessorView extends MyFrame implements IProfessorView {
     @Override
     public String getPhoneNumberText() {
         return phoneNumberField.getText();
+    }
+
+    @Override
+    public String getCpfText() {
+        return cpfField.getText();
+    }
+    @Override
+    public String getTitleText() {
+        return title1Field.getText();
     }
 
     @Override

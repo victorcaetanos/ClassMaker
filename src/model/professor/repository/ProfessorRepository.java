@@ -20,12 +20,13 @@ public class ProfessorRepository implements IProfessorRepository {
     @Override
     public boolean insertProfessor(Professor professor) {
 
-        String sql = "INSERT INTO professors (name, email, phoneNumber) values (?, ?, ?);";
+        String sql = "INSERT INTO professors (name, email, phoneNumber, cpf, title) values (?, ?, ?, ?, ?);";
 
         try (Connection con = getConnection(); PreparedStatement ps = Objects.requireNonNull(con).prepareStatement(sql)) {
             ps.setString(1, professor.getName());
             ps.setString(2, professor.getEmail());
             ps.setString(3, professor.getPhoneNumber());
+            ps.setString(4, professor.getCpf());
             int affectedRows = ps.executeUpdate();
             return affectedRows > 0;
         } catch (SQLException e) {
@@ -37,13 +38,15 @@ public class ProfessorRepository implements IProfessorRepository {
     @Override
     public boolean updateProfessor(Professor professor) {
 
-        String sql = "UPDATE professors SET name = ?, email = ?, phoneNumber = ? WHERE id = ?";
+        String sql = "UPDATE professors SET name = ?, email = ?, phoneNumber = ?, cpf = ? , title = ? WHERE id = ?";
 
         try (Connection con = getConnection(); PreparedStatement ps = Objects.requireNonNull(con).prepareStatement(sql)) {
             ps.setString(1, professor.getName());
             ps.setString(2, professor.getEmail());
             ps.setString(3, professor.getPhoneNumber());
-            ps.setInt(4, professor.getId());
+            ps.setString(4, professor.getCpf());
+            ps.setString(5, professor.getTitle());
+            ps.setInt(6, professor.getId());
             int affectedRows = ps.executeUpdate();
             return affectedRows > 0;
         } catch (SQLException e) {
@@ -87,7 +90,7 @@ public class ProfessorRepository implements IProfessorRepository {
     @Override
     public Professor listProfessor(int id, boolean onlyInactive) {
 
-        String sql = "SELECT id, name, email, phoneNumber FROM professors WHERE id = ? AND inactive = ?";
+        String sql = "SELECT id, name, email, phoneNumber, cpf, title FROM professors WHERE id = ? AND inactive = ?";
 
         try {
             ps = Objects.requireNonNull(con).prepareStatement(sql);
@@ -109,14 +112,16 @@ public class ProfessorRepository implements IProfessorRepository {
     public List<Professor> listProfessorsByParam(String filterValue, boolean onlyInactive) {
 
         String sql = """
-                SELECT id, name, email, phoneNumber FROM professors
-                WHERE (id = ? OR name LIKE ? OR email LIKE ? OR phoneNumber LIKE ?) AND professors.inactive = ?
+                SELECT id, name, email, phoneNumber, cpf, title FROM professors
+                WHERE (id = ? OR name LIKE ? OR email LIKE ? OR phoneNumber LIKE ? OR cpf LIKE ? OR title LIKE ? ) AND professors.inactive = ?
                 """;
 
         try {
             int cont = 0;
             ps = Objects.requireNonNull(con).prepareStatement(sql);
             ps.setString(++cont, filterValue);
+            ps.setString(++cont, '%' + filterValue + '%');
+            ps.setString(++cont, '%' + filterValue + '%');
             ps.setString(++cont, '%' + filterValue + '%');
             ps.setString(++cont, '%' + filterValue + '%');
             ps.setString(++cont, '%' + filterValue + '%');
@@ -131,7 +136,7 @@ public class ProfessorRepository implements IProfessorRepository {
     @Override
     public List<Professor> listAllProfessors(boolean onlyInactive) {
 
-        String sql = "SELECT id, name, email, phoneNumber FROM professors WHERE inactive = ?";
+        String sql = "SELECT id, name, email, phoneNumber, cpf , title FROM professors WHERE inactive = ?";
 
         try {
             ps = Objects.requireNonNull(con).prepareStatement(sql);
@@ -146,7 +151,7 @@ public class ProfessorRepository implements IProfessorRepository {
     @Override
     public List<Professor> listAllActiveProfessors() {
 
-        String sql = "SELECT id, name, email, phoneNumber  FROM professors WHERE inactive = false";
+        String sql = "SELECT id, name, email, phoneNumber , cpf  , title  FROM professors WHERE inactive = false";
 
         try {
             ps = Objects.requireNonNull(con).prepareStatement(sql);
@@ -166,6 +171,8 @@ public class ProfessorRepository implements IProfessorRepository {
             professor.setName(resultSet.getString("name"));
             professor.setEmail(resultSet.getString("email"));
             professor.setPhoneNumber(resultSet.getString("phoneNumber"));
+            professor.setCpf(resultSet.getString("cpf"));
+            professor.setTitle(resultSet.getString("title"));
             professorList.add(professor);
         }
         return professorList;

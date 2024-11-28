@@ -40,15 +40,16 @@ public class DisciplineController {
             String name = view.getNameText();
             String code = view.getCodeText();
             String description = view.getDescriptionText();
+            String periodo = view.getPeriodoText();
 
             try {
-                DisciplineValidation.validateDisciplineFields(null, name, code, description);
+                DisciplineValidation.validateDisciplineFields(null, name, code, description, periodo);
             } catch (ValidationException error) {
                 view.showErrorMessage(error.getMessage());
                 return;
             }
 
-            Discipline discipline = new Discipline(name, code, description);
+            Discipline discipline = new Discipline(name, code, description, periodo);
             if (!repository.insertDiscipline(discipline)) {
                 view.showErrorMessage("Falha ao inserir sala!");
                 return;
@@ -65,17 +66,18 @@ public class DisciplineController {
             String name = view.getNameText();
             String code = view.getCodeText();
             String description = view.getDescriptionText();
+            String periodo = view.getPeriodoText();
 
             int parsedID;
             try {
                 parsedID = ParseUtils.parseId(id);
-                DisciplineValidation.validateDisciplineFields(parsedID, name, code, description);
+                DisciplineValidation.validateDisciplineFields(parsedID, name, code, description, periodo);
             } catch (ValidationException error) {
                 view.showErrorMessage(error.getMessage());
                 return;
             }
 
-            Discipline discipline = new Discipline(parsedID, name, code, description);
+            Discipline discipline = new Discipline(parsedID, name, code, description, periodo);
             if (!repository.updateDiscipline(discipline)) {
                 view.showErrorMessage("Falha ao atualizar sala!");
                 return;
@@ -97,7 +99,7 @@ public class DisciplineController {
             int parsedID;
             try {
                 parsedID = ParseUtils.parseId(id);
-                DisciplineValidation.validateDisciplineFields(parsedID, null, null, null);
+                DisciplineValidation.validateDisciplineFields(parsedID, null, null, null, null);
             } catch (ValidationException error) {
                 view.showErrorMessage(error.getMessage());
                 return;
@@ -125,7 +127,7 @@ public class DisciplineController {
             int parsedID;
             try {
                 parsedID = ParseUtils.parseId(id);
-                DisciplineValidation.validateDisciplineFields(parsedID, null, null, null);
+                DisciplineValidation.validateDisciplineFields(parsedID, null, null, null, null);
             } catch (ValidationException error) {
                 view.showErrorMessage(error.getMessage());
                 return;
@@ -233,6 +235,7 @@ public class DisciplineController {
         disciplineDTO.setName(discipline.getName());
         disciplineDTO.setCode(discipline.getCode());
         disciplineDTO.setDescription(discipline.getDescription());
+        disciplineDTO.setPeriodo(discipline.getPeriodo());
         return disciplineDTO;
     }
 

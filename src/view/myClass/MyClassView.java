@@ -32,9 +32,10 @@ import java.util.Vector;
 public class MyClassView extends MyFrame implements IMyClassView {
 
     private final String ID = "ID";
+    private final String WEEKDAY = "Dia da Semana";
     private final String START_TIME = "Hora Início";
     private final String FINISH_TIME = "Hora Fim";
-    private final Vector<String> tableColumnNames = new Vector<>(List.of(ID, "Professor", "Disciplina", "Sala", START_TIME, FINISH_TIME, "Semestre"));
+    private final Vector<String> tableColumnNames = new Vector<>(List.of(ID, "Professor", "Disciplina", "Sala",WEEKDAY, START_TIME, FINISH_TIME, "Semestre"));
     private JLabel titleLabel;
     private JLabel idLabel;
     private JLabel semesterLabel;
@@ -65,6 +66,8 @@ public class MyClassView extends MyFrame implements IMyClassView {
     private JComboBox<ClassroomDTO> classroomComboBox;
     private JComboBox<DisciplineDTO> disciplineComboBox;
     private JButton searchButton;
+    private JTextField weedDayField;
+    private JLabel weedDayTitle;
 
     public MyClassView() {
 
@@ -89,6 +92,7 @@ public class MyClassView extends MyFrame implements IMyClassView {
                 rowVector.add(myClass.getProfessorName());
                 rowVector.add(myClass.getDisciplineName());
                 rowVector.add(myClass.getClassroomName());
+                rowVector.add(myClass.getWeekDay());
                 rowVector.add(myClass.getStartTime());
                 rowVector.add(myClass.getFinishTime());
                 rowVector.add(myClass.getSemester());
@@ -124,6 +128,7 @@ public class MyClassView extends MyFrame implements IMyClassView {
     @Override
     public void setFieldTexts(MyClassDTO myClass) {
         semesterField.setText(myClass.getSemester());
+        weedDayField.setText(myClass.getWeekDay());
         startTimeField.setText(myClass.getStartTime());
         finishTimeField.setText(myClass.getFinishTime());
 
@@ -151,6 +156,7 @@ public class MyClassView extends MyFrame implements IMyClassView {
     public void clearAllFields() {
         idField.setText("");
         semesterField.setText("");
+        weedDayField.setText("");
         startTimeField.setText("");
         finishTimeField.setText("");
         professorComboBox.setSelectedIndex(0);
@@ -252,6 +258,10 @@ public class MyClassView extends MyFrame implements IMyClassView {
     @Override
     public String getSemesterText() {
         return semesterField.getText();
+    }
+    @Override
+    public String getWeekDayText() {
+        return weedDayField.getText();
     }
 
     @Override

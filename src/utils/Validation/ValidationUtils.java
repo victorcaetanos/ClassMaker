@@ -36,8 +36,34 @@ public class ValidationUtils {
             throw new InvalidCpfFormattingException("Por favor informe um CPF com apenas números!");
         } else if (cpf.length() != REQUIRED_SIZE) {
             throw new InvalidCpfFormattingException(String.format("Por favor informe um CPF com %s dígitos!", REQUIRED_SIZE));
+        } else if (!validarCPF(cpf)) {
+            throw new InvalidCpfFormattingException("Por favor informe um CPF valido");
         }
         //TODO: If needed, could check the CPF against its generation algorithm
+    }
+
+    public static boolean validarCPF(String cpf) {
+
+        if (cpf.equals("00000000000") || cpf.equals("11111111111") ||
+                cpf.equals("22222222222") || cpf.equals("33333333333") ||
+                cpf.equals("44444444444") || cpf.equals("55555555555") ||
+                cpf.equals("66666666666") || cpf.equals("77777777777") ||
+                cpf.equals("88888888888") || cpf.equals("99999999999")) {
+            return false;
+        }
+
+        cpf = cpf.replaceAll("\\D", "");
+
+        if (cpf.length() != 11) {
+            return false;
+        }
+
+        int soma = 0;
+        for (char c : cpf.toCharArray()) {
+            soma += Character.getNumericValue(c);
+        }
+
+        return soma % 11 == 0 && soma / 11 <= 9;
     }
 
     public static void validateTime(final String time) throws InvalidTimeFormattingException {
@@ -51,10 +77,22 @@ public class ValidationUtils {
     }
 
     public static void validateSemester(final String semester) throws InvalidSemesterFormattingException {
+        final int MAX = 7;
         if (semester == null || semester.isEmpty()) {
             throw new InvalidSemesterFormattingException("Por favor informe um Semestre!");
+        } else if (semester.length() > MAX) {
+            throw new InvalidSemesterFormattingException("Semestre inválido");
         } else if (!semester.matches("^\\d{4}/(01|02)$")) {
             throw new InvalidSemesterFormattingException("Por favor informe um Semestre com apenas números! Ex:'2024/01'");
+        }
+    }
+
+    public static void validateWeekDay(final String weekDay) throws InvalidSemesterFormattingException {
+        final int MAX = 13;
+        if (weekDay == null || weekDay.isEmpty()) {
+            throw new InvalidSemesterFormattingException("Por favor informe um Dia da Semana!");
+        } else if (weekDay.length() > MAX) {
+            throw new InvalidSemesterFormattingException("Palavra muito grande");
         }
     }
 

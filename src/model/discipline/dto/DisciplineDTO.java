@@ -7,15 +7,17 @@ public class DisciplineDTO {
     private String name;
     private String code;
     private String description;
+    private String periodo;
 
     public DisciplineDTO() {
     }
 
-    public DisciplineDTO(String id, String name, String code, String description) {
+    public DisciplineDTO(String id, String name, String code, String description, String  periodo) {
         this.id = id;
         this.name = name;
         this.code = code;
         this.description = description;
+        this.periodo = periodo;
     }
 
     public String getId() {
@@ -48,6 +50,14 @@ public class DisciplineDTO {
 
     public void setCode(final String code) {
         this.code = code;
+    }
+
+    public String getPeriodo() {
+        return periodo;
+    }
+
+    public void setPeriodo(String periodo) {
+        this.periodo = periodo;
     }
 
     @Override

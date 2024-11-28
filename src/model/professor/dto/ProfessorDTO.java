@@ -7,15 +7,19 @@ public class ProfessorDTO {
     private String name;
     private String email;
     private String phoneNumber;
+    private String cpf;
+    private String title;
 
     public ProfessorDTO() {
     }
 
-    public ProfessorDTO(String id, String name, String email, String phoneNumber) {
+    public ProfessorDTO(String id, String name, String email, String phoneNumber, String cpf, String title) {
         this.id = id;
         this.name = name;
         this.phoneNumber = phoneNumber;
         this.email = email;
+        this.cpf = cpf;
+        this.title = title;
     }
 
     public String getId() {
@@ -48,6 +52,22 @@ public class ProfessorDTO {
 
     public void setEmail(final String email) {
         this.email = email;
+    }
+
+    public String getCpf() {
+        return cpf;
+    }
+
+    public void setCpf(String cpf) {
+        this.cpf = cpf;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     @Override

@@ -23,7 +23,7 @@ public class MyClassRepository implements IMyClassRepository {
     @Override
     public boolean insertMyClass(final MyClass myClass) {
 
-        String sql = "INSERT INTO classes (professor_id, discipline_id, classroom_id, start_time, finish_time, semester) values (?, ?, ?, ?, ?, ?);";
+        String sql = "INSERT INTO classes (professor_id, discipline_id, classroom_id,week_day, start_time, finish_time, semester) values (?,?, ?, ?, ?, ?, ?);";
 
         try (Connection con = getConnection(); PreparedStatement ps = Objects.requireNonNull(con).prepareStatement(sql)) {
             ps.setInt(1, myClass.getProfessor().getId());
@@ -43,16 +43,17 @@ public class MyClassRepository implements IMyClassRepository {
     @Override
     public boolean updateMyClass(final MyClass myClass) {
 
-        String sql = "UPDATE classes SET professor_id = ?, discipline_id = ?, classroom_id = ?, start_time = ?, finish_time = ?, semester = ? WHERE id = ?";
+        String sql = "UPDATE classes SET professor_id = ?, discipline_id = ?, classroom_id = ?, week_day = ?, start_time = ?, finish_time = ?, semester = ? WHERE id = ?";
 
         try (Connection con = getConnection(); PreparedStatement ps = Objects.requireNonNull(con).prepareStatement(sql)) {
             ps.setInt(1, myClass.getProfessor().getId());
             ps.setInt(2, myClass.getDiscipline().getId());
             ps.setInt(3, myClass.getClassroom().getId());
-            ps.setString(4, myClass.getStartTime());
-            ps.setString(5, myClass.getFinishTime());
-            ps.setString(6, myClass.getSemester());
-            ps.setInt(7, myClass.getId());
+            ps.setString(4, myClass.getWeeDay());
+            ps.setString(5, myClass.getStartTime());
+            ps.setString(6, myClass.getFinishTime());
+            ps.setString(7, myClass.getSemester());
+            ps.setInt(8, myClass.getId());
             int affectedRows = ps.executeUpdate();
             return affectedRows > 0;
         } catch (SQLException e) {
@@ -101,7 +102,7 @@ public class MyClassRepository implements IMyClassRepository {
                     professors.name, professors.id,
                     disciplines.name, disciplines.id,
                     classrooms.name, classrooms.id,
-                    start_time, finish_time, semester
+                    week_day, start_time, finish_time, semester
                 FROM classes
                     INNER JOIN professors ON professors.id = classes.professor_id
                     INNER JOIN disciplines ON disciplines.id = classes.discipline_id
@@ -129,7 +130,7 @@ public class MyClassRepository implements IMyClassRepository {
     public List<MyClass> listMyClassesByParam(final String filterValue, final boolean onlyInactive) {
         // this was requested by the university professor, even though it kills the database performance
         String sql = """
-                SELECT classes.id, professors.name, disciplines.name, classrooms.name, start_time, finish_time, semester FROM classes
+                SELECT classes.id, professors.name, disciplines.name, classrooms.name, week_day, start_time, finish_time, semester FROM classes
                     INNER JOIN professors    ON professors.id  = classes.professor_id
                     INNER JOIN disciplines   ON disciplines.id = classes.discipline_id
                     INNER JOIN classrooms    ON classrooms.id  = classes.classroom_id
@@ -143,7 +144,7 @@ public class MyClassRepository implements IMyClassRepository {
                     disciplines.name   LIKE ? OR disciplines.code    LIKE ? OR disciplines.description LIKE ? OR
                     classrooms.name    LIKE ? OR classrooms.capacity LIKE ? OR classrooms.location     LIKE ? OR
                     students.name      LIKE ? OR students.email      LIKE ? OR students.phoneNumber    LIKE ? OR
-                    students.cpf       LIKE ? OR students.address    LIKE ?
+                    students.cpf       LIKE ? OR students.address    LIKE ? OR classes.week_day        LIKE ?
                 ))
                     AND classes.inactive = ?
                 GROUP BY classes.id, professors.name, disciplines.name, classrooms.name, semester
@@ -154,7 +155,7 @@ public class MyClassRepository implements IMyClassRepository {
             while (cont < 6) {
                 ps.setString(++cont, filterValue);
             }
-            while (cont < 22) {
+            while (cont < 23) {
                 ps.setString(++cont, "%" + filterValue + "%");
             }
             ps.setBoolean(++cont, onlyInactive);
@@ -169,7 +170,7 @@ public class MyClassRepository implements IMyClassRepository {
     public List<MyClass> listAllActiveMyClasses(final String filterValue) {
         // this was requested by the university professor, even though it kills the database performance
         String sql = """
-                SELECT classes.id, professors.name, disciplines.name, classrooms.name, start_time, finish_time, semester FROM classes
+                SELECT classes.id, professors.name, disciplines.name, classrooms.name, week_day, start_time, finish_time, semester FROM classes
                     INNER JOIN professors    ON professors.id  = classes.professor_id
                     INNER JOIN disciplines   ON disciplines.id = classes.discipline_id
                     INNER JOIN classrooms    ON classrooms.id  = classes.classroom_id
@@ -183,7 +184,7 @@ public class MyClassRepository implements IMyClassRepository {
                     disciplines.name   LIKE ? OR disciplines.code    LIKE ? OR disciplines.description LIKE ? OR
                     classrooms.name    LIKE ? OR classrooms.capacity LIKE ? OR classrooms.location     LIKE ? OR
                     students.name      LIKE ? OR students.email      LIKE ? OR students.phoneNumber    LIKE ? OR
-                    students.cpf       LIKE ? OR students.address    LIKE ?
+                    students.cpf       LIKE ? OR students.address    LIKE ? OR classes.week_day        LIKE ?
                 ))
                     AND classes.inactive = false
                 GROUP BY classes.id, professors.name, disciplines.name, classrooms.name, semester
@@ -194,7 +195,7 @@ public class MyClassRepository implements IMyClassRepository {
             while (cont < 6) {
                 ps.setString(++cont, filterValue);
             }
-            while (cont < 22) {
+            while (cont < 23) {
                 ps.setString(++cont, "%" + filterValue + "%");
             }
             return mapResultSetToEntity(ps.executeQuery());
@@ -222,6 +223,7 @@ public class MyClassRepository implements IMyClassRepository {
             myClass.setProfessor(professor);
             myClass.setDiscipline(discipline);
             myClass.setClassroom(classroom);
+            myClass.setWeeDay(resultSet.getString("week_day"));
             myClass.setStartTime(resultSet.getString("start_time"));
             myClass.setFinishTime(resultSet.getString("finish_time"));
             myClass.setSemester(resultSet.getString("semester"));

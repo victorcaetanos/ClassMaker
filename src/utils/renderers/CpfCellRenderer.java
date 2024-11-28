@@ -17,7 +17,7 @@ public class CpfCellRenderer extends DefaultTableCellRenderer {
         return cellComponent;
     }
 
-    private String formatCpf(String cpf) {
+    public static String formatCpf(String cpf) {
         if (cpf.length() == 11) {
             return String.format("%s.%s.%s-%s", cpf.substring(0, 3), cpf.substring(3, 6), cpf.substring(6, 9), cpf.substring(9));
         }

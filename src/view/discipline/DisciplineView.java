@@ -24,7 +24,7 @@ import java.util.Vector;
 public class DisciplineView extends MyFrame implements IDisciplineView {
 
     private final String ID = "ID";
-    private final Vector<String> tableColumnNames = new Vector<>(List.of(ID, "Nome", "Código", "Descrição"));
+    private final Vector<String> tableColumnNames = new Vector<>(List.of(ID, "Nome", "Código", "Descrição", "Período"));
     private JLabel titleLabel;
     private JLabel idLabel;
     private JLabel nameLabel;
@@ -50,6 +50,8 @@ public class DisciplineView extends MyFrame implements IDisciplineView {
     private JCheckBox inactivesCheckBox;
     private JTable disciplineTable;
     private JButton searchButton;
+    private JFormattedTextField periodoField;
+    private JLabel periodoLabel;
 
     public DisciplineView() {
 
@@ -71,6 +73,7 @@ public class DisciplineView extends MyFrame implements IDisciplineView {
                 rowVector.add(discipline.getName());
                 rowVector.add(discipline.getCode());
                 rowVector.add(discipline.getDescription());
+                rowVector.add(discipline.getPeriodo());
                 dataVector.add(rowVector);
             }
         }
@@ -105,6 +108,7 @@ public class DisciplineView extends MyFrame implements IDisciplineView {
         nameField.setText(discipline.getName());
         descriptionField.setText(discipline.getDescription());
         codeField.setText(discipline.getCode());
+        periodoField.setText(discipline.getPeriodo());
     }
 
     @Override
@@ -113,6 +117,7 @@ public class DisciplineView extends MyFrame implements IDisciplineView {
         codeField.setText("");
         descriptionField.setText("");
         idField.setText("");
+        periodoField.setText("");
     }
 
     @Override
@@ -195,6 +200,10 @@ public class DisciplineView extends MyFrame implements IDisciplineView {
     @Override
     public String getDescriptionText() {
         return descriptionField.getText();
+    }
+    @Override
+    public String getPeriodoText() {
+        return periodoField.getText();
     }
 
     @Override

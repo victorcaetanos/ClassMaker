@@ -20,12 +20,13 @@ public class DisciplineRepository implements IDisciplineRepository {
     @Override
     public boolean insertDiscipline(final Discipline discipline) {
 
-        String sql = "INSERT INTO disciplines (name, code, description) values (?, ?, ?);";
+        String sql = "INSERT INTO disciplines (name, code, description, periodo) values (?, ?, ?, ?);";
 
         try (Connection con = getConnection(); PreparedStatement ps = Objects.requireNonNull(con).prepareStatement(sql)) {
             ps.setString(1, discipline.getName());
             ps.setString(2, discipline.getCode());
             ps.setString(3, discipline.getDescription());
+            ps.setString(4, discipline.getPeriodo());
             int affectedRows = ps.executeUpdate();
             return affectedRows > 0;
         } catch (SQLException e) {
@@ -37,13 +38,14 @@ public class DisciplineRepository implements IDisciplineRepository {
     @Override
     public boolean updateDiscipline(final Discipline discipline) {
 
-        String sql = "UPDATE disciplines SET name = ?, code = ?, description = ? WHERE id = ?";
+        String sql = "UPDATE disciplines SET name = ?, code = ?, description = ?, periodo = ? WHERE id = ?";
 
         try (Connection con = getConnection(); PreparedStatement ps = Objects.requireNonNull(con).prepareStatement(sql)) {
             ps.setString(1, discipline.getName());
             ps.setString(2, discipline.getCode());
             ps.setString(3, discipline.getDescription());
-            ps.setInt(4, discipline.getId());
+            ps.setString(4, discipline.getPeriodo());
+            ps.setInt(5, discipline.getId());
             int affectedRows = ps.executeUpdate();
             return affectedRows > 0;
         } catch (SQLException e) {
@@ -87,7 +89,7 @@ public class DisciplineRepository implements IDisciplineRepository {
     @Override
     public Discipline listDiscipline(final int id, final boolean onlyInactive) {
 
-        String sql = "SELECT id, name, code, description FROM disciplines WHERE id = ? AND inactive = ?";
+        String sql = "SELECT id, name, code, description, periodo FROM disciplines WHERE id = ? AND inactive = ?";
 
         try {
             ps = Objects.requireNonNull(con).prepareStatement(sql);
@@ -109,14 +111,15 @@ public class DisciplineRepository implements IDisciplineRepository {
     public List<Discipline> listDisciplinesByParam(final String filterValue, final boolean onlyInactive) {
 
         String sql = """
-                SELECT id, name, code, description FROM disciplines
-                WHERE (id = ? OR name LIKE ? OR code LIKE ? OR description LIKE ?) AND disciplines.inactive = ?
+                SELECT id, name, code, description, periodo FROM disciplines
+                WHERE (id = ? OR name LIKE ? OR code LIKE ? OR description LIKE ? OR periodo LIKE ?) AND disciplines.inactive = ?
                 """;
 
         try {
             int cont = 0;
             ps = Objects.requireNonNull(con).prepareStatement(sql);
             ps.setString(++cont, filterValue);
+            ps.setString(++cont, '%' + filterValue + '%');
             ps.setString(++cont, '%' + filterValue + '%');
             ps.setString(++cont, '%' + filterValue + '%');
             ps.setString(++cont, '%' + filterValue + '%');
@@ -131,7 +134,7 @@ public class DisciplineRepository implements IDisciplineRepository {
     @Override
     public List<Discipline> listAllDisciplines(final boolean onlyInactive) {
 
-        String sql = "SELECT id, name, code, description FROM disciplines WHERE inactive = ?";
+        String sql = "SELECT id, name, code, description , periodo FROM disciplines WHERE inactive = ?";
 
         try {
             ps = Objects.requireNonNull(con).prepareStatement(sql);
@@ -146,7 +149,7 @@ public class DisciplineRepository implements IDisciplineRepository {
     @Override
     public List<Discipline> listAllActiveDisciplines() {
 
-        String sql = "SELECT id, name, code, description FROM disciplines WHERE inactive = false";
+        String sql = "SELECT id, name, code, description, periodo FROM disciplines WHERE inactive = false";
 
         try {
             ps = Objects.requireNonNull(con).prepareStatement(sql);
@@ -166,6 +169,7 @@ public class DisciplineRepository implements IDisciplineRepository {
             discipline.setName(resultSet.getString("name"));
             discipline.setCode(resultSet.getString("code"));
             discipline.setDescription(resultSet.getString("description"));
+            discipline.setPeriodo(resultSet.getString("periodo"));
             disciplineList.add(discipline);
         }
         return disciplineList;

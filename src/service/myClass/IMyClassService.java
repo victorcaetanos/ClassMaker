@@ -11,10 +11,10 @@ import java.util.List;
 public interface IMyClassService {
 
     boolean insertMyClass(String professorId, String disciplineId, String classroomId,
-                          String startTime, String finishTime, String semester) throws ValidationException;
+                          String weekDay, String startTime, String finishTime, String semester) throws ValidationException;
 
     boolean updateMyClass(String myClassId, String professorId, String disciplineId, String classroomId,
-                          String startTime, String finishTime, String semester) throws ValidationException;
+                          String weekDay, String startTime, String finishTime, String semester) throws ValidationException;
 
     boolean deleteMyClass(String myclassId) throws ValidationException;
 

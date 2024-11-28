@@ -9,6 +9,7 @@ public class MyClass {
     private Professor professor;
     private Discipline discipline;
     private Classroom classroom;
+    private String weeDay;
     private String startTime;
     private String finishTime;
     private String semester;
@@ -21,17 +22,18 @@ public class MyClass {
         this.id = id;
     }
 
-    public MyClass(Professor professor, Discipline discipline, Classroom classroom, String startTime, String finishTime, String semester) {
+    public MyClass(Professor professor, Discipline discipline, Classroom classroom, String weeDay, String startTime, String finishTime, String semester) {
         this.professor = professor;
         this.discipline = discipline;
         this.classroom = classroom;
+        this.weeDay = weeDay;
         this.startTime = startTime;
         this.finishTime = finishTime;
         this.semester = semester;
     }
 
-    public MyClass(int id, Professor professor, Discipline discipline, Classroom classroom, String startTime, String finishTime, String semester) {
-        this(professor, discipline, classroom, startTime, finishTime, semester);
+    public MyClass(int id, Professor professor, Discipline discipline, Classroom classroom, String weeDay,String startTime, String finishTime, String semester) {
+        this(professor, discipline, classroom,weeDay, startTime, finishTime, semester);
         this.id = id;
     }
 
@@ -65,6 +67,14 @@ public class MyClass {
 
     public void setDiscipline(final Discipline discipline) {
         this.discipline = discipline;
+    }
+
+    public String getWeeDay() {
+        return weeDay;
+    }
+
+    public void setWeeDay(String weeDay) {
+        this.weeDay = weeDay;
     }
 
     public String getStartTime() {

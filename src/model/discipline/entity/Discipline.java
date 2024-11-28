@@ -5,6 +5,7 @@ public class Discipline {
     private String name;
     private String code;
     private String description;
+    private String periodo;
     private boolean inactive;
 
     public Discipline() {
@@ -18,14 +19,15 @@ public class Discipline {
         this.name = name;
     }
 
-    public Discipline(String name, String code, String description) {
+    public Discipline(String name, String code, String description, String  periodo) {
         this.name = name;
         this.description = description;
         this.code = code;
+        this.periodo = periodo;
     }
 
-    public Discipline(int id, String name, String code, String description) {
-        this(name, code, description);
+    public Discipline(int id, String name, String code, String description, String  periodo) {
+        this(name, code, description, periodo);
         this.id = id;
     }
 
@@ -59,6 +61,14 @@ public class Discipline {
 
     public void setCode(final String code) {
         this.code = code;
+    }
+
+    public String getPeriodo() {
+        return periodo;
+    }
+
+    public void setPeriodo(String periodo) {
+        this.periodo = periodo;
     }
 
     public boolean isInactive() {

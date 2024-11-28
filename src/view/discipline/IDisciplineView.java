@@ -24,6 +24,8 @@ public interface IDisciplineView {
 
     String getDescriptionText();
 
+    String getPeriodoText();
+
     String getFilterText();
 
     String getDisciplineIdAt(int row);

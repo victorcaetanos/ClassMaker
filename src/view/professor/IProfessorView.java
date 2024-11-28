@@ -21,6 +21,8 @@ public interface IProfessorView {
     String getNameText();
 
     String getPhoneNumberText();
+    String getCpfText();
+    String getTitleText();
 
     String getEmailText();
 

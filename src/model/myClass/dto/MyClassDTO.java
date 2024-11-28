@@ -14,6 +14,7 @@ public class MyClassDTO {
     private String classroomId;
     private String classroomName;
 
+    private String weekDay;
     private String startTime;
     private String finishTime;
     private String semester;
@@ -26,10 +27,11 @@ public class MyClassDTO {
         this.disciplineName = disciplineName;
     }
 
-    public MyClassDTO(String professorName, String disciplineName, String classroomName, String startTime, String finishTime, String semester) {
+    public MyClassDTO(String professorName, String disciplineName, String classroomName, String weekDay, String startTime, String finishTime, String semester) {
         this.professorName = professorName;
         this.disciplineName = disciplineName;
         this.classroomName = classroomName;
+        this.weekDay = weekDay;
         this.startTime = startTime;
         this.finishTime = finishTime;
         this.semester = semester;
@@ -89,6 +91,14 @@ public class MyClassDTO {
 
     public void setClassroomName(final String classroomName) {
         this.classroomName = classroomName;
+    }
+
+    public String getWeekDay() {
+        return weekDay;
+    }
+
+    public void setWeekDay(String weekDay) {
+        this.weekDay = weekDay;
     }
 
     public String getStartTime() {
