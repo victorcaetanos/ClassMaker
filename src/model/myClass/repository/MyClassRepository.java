@@ -29,9 +29,10 @@ public class MyClassRepository implements IMyClassRepository {
             ps.setInt(1, myClass.getProfessor().getId());
             ps.setInt(2, myClass.getDiscipline().getId());
             ps.setInt(3, myClass.getClassroom().getId());
-            ps.setString(4, myClass.getStartTime());
-            ps.setString(5, myClass.getFinishTime());
-            ps.setString(6, myClass.getSemester());
+            ps.setString(4, myClass.getWeeDay());
+            ps.setString(5, myClass.getStartTime());
+            ps.setString(6, myClass.getFinishTime());
+            ps.setString(7, myClass.getSemester());
             int affectedRows = ps.executeUpdate();
             return affectedRows > 0;
         } catch (SQLException e) {
